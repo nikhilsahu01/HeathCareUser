@@ -72,12 +72,12 @@ class _OtpScreenState extends State<OtpScreen> {
 
                   // Logo
                   CustomImageView(
-                    imagePath: 'assets/images/appLogoIcon.png',
+                    imagePath: 'assets/images/appLogoUpdated1.png',
                     height: height * 0.20,
                     width: width * 0.35,
                     fit: BoxFit.contain,
                   ),
-                  SizedBox(height: height * 0.04),
+                  SizedBox(height: height * 0.02),
 
                   /// OTP Card
                   Container(

@@ -50,7 +50,7 @@ class _LoginScreenState extends State<LoginScreen> {
               children: [
                 SizedBox(height: height * 0.15),
                 CustomImageView(
-                  imagePath: 'assets/images/appLogoIcon.png',
+                  imagePath: 'assets/images/appLogoUpdated1.png',
                   height: height * 0.20,
                   width: width * 0.35,
                   fit: BoxFit.contain,

@@ -50,7 +50,7 @@ class _SplashBody extends StatelessWidget {
       width:MediaQuery.of(context).size.width,
       color: Colors.white,
       child: CustomImageView(
-        imagePath: 'assets/images/splash.png',
+        imagePath: 'assets/images/UpdatedSplash.png',
         fit: BoxFit.cover,
         height: MediaQuery.of(context).size.height,
         width:MediaQuery.of(context).size.width,
