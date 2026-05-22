@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:health_care/core/utils/theams/color_resource.dart';
 import '../../core/utils/custom_widgets/custom_app_button.dart';
 import '../../core/utils/custom_widgets/custom_image_view.dart';
 import '../../core/utils/navigation_helper.dart';
@@ -81,7 +82,7 @@ class _OBScreenState extends State<OBScreen> {
                   height: 8,
                   width: isActive ? 18 : 8,
                   decoration: BoxDecoration(
-                    color: isActive ? Colors.blue : Colors.grey.shade300,
+                    color: isActive ? ColorResource.primaryBlue : Colors.grey.shade300,
                     borderRadius: BorderRadius.circular(10),
                   ),
                 );
@@ -103,7 +104,7 @@ class _OBScreenState extends State<OBScreen> {
                     );
                   }
                 },
-                color: Colors.blue,
+                color: ColorResource.primaryBlue,
               ),
             ),
           ],

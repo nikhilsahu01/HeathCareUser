@@ -34,6 +34,7 @@ class SymptomsViewModel extends ChangeNotifier {
 
   void clearSymptoms() {
     _selectedSymptoms.clear();
+    _suggestedSymptoms.clear();
     notifyListeners();
   }
 

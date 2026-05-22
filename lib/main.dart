@@ -92,7 +92,7 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => ProfileViewModel()),
       ],
       child: MaterialApp(
-        title: 'HealthCare',
+        title: 'Olcure User',
         navigatorKey: navigatorKey,
         theme: AppTheme.lightTheme,
         debugShowCheckedModeBanner: false,

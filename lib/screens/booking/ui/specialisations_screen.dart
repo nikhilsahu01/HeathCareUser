@@ -57,7 +57,7 @@ class _SpecialisationsScreenState extends State<SpecialisationsScreen> {
               : SingleChildScrollView(
             padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.05),
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 CustomSearchBar(
                   hintText: "Search...",

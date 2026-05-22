@@ -39,11 +39,18 @@ class _FindDoctorCategoriesWidgetState extends State<FindDoctorCategoriesWidget>
             return Wrap(
               spacing: 12,
               runSpacing: 12,
-              children: List.generate(widget.categories.length, (index) {
-                final item = widget.categories[index];
-                final isSelected = selectedIndex == index;
+              children: List.generate(
+                  widget.categories.length > 3 ? 3 : widget.categories.length,
+                      (index) {
+                    final item = widget.categories[index];
+                    final isSelected = selectedIndex == index;
 
-                return GestureDetector(
+                    return GestureDetector(
+              // children: List.generate(widget.categories.length, (index) {
+              //   final item = widget.categories[index];
+              //   final isSelected = selectedIndex == index;
+              //
+              //   return GestureDetector(
                   onTap: () {
                     setState(() {
                       selectedIndex = index;
@@ -93,20 +100,28 @@ class _FindDoctorCategoriesWidgetState extends State<FindDoctorCategoriesWidget>
             );
           },
         ),
-        const SizedBox(height: 20),
-        CustomAppButton(
-          label: "See More",
-          onPressed: () {
-            navSlideFromRight(context, const CategoriesListScreen());
-          },
-          color: ColorResource.primaryBlue,
-          textColor: Colors.white,
-          borderColor: Colors.transparent,
-          borderRadius: 12,
-          height: 48,
-          fontSize: 16,
-          fontWeight: FontWeight.bold,
+        const SizedBox(height: 10),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            GestureDetector(  onTap: () {
+              navSlideFromRight(context, const CategoriesListScreen());
+            }, child: Text("See More >>",style: TextStyle(fontWeight: FontWeight.w600,color: ColorResource.primaryBlue,),textAlign: TextAlign.center,)),
+          ],
         ),
+        // CustomAppButton(
+        //   label: "See More",
+        //   onPressed: () {
+        //     navSlideFromRight(context, const CategoriesListScreen());
+        //   },
+        //   color: ColorResource.primaryBlue,
+        //   textColor: Colors.white,
+        //   borderColor: Colors.transparent,
+        //   borderRadius: 12,
+        //   height: 48,
+        //   fontSize: 16,
+        //   fontWeight: FontWeight.bold,
+        // ),
       ],
     );
   }

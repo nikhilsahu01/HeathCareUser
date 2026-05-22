@@ -4,7 +4,6 @@ import '../../core/utils/custom_widgets/custom_image_view.dart';
 import '../../core/utils/navigation_helper.dart';
 import '../home/view/bottom_controller.dart';
 import '../onBoarding/on_boarding_screen.dart';
-
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
 
@@ -49,12 +48,22 @@ class _SplashBody extends StatelessWidget {
       height: MediaQuery.of(context).size.height,
       width:MediaQuery.of(context).size.width,
       color: Colors.white,
-      child: CustomImageView(
-        imagePath: 'assets/images/UpdatedSplash.png',
-        fit: BoxFit.cover,
-        height: MediaQuery.of(context).size.height,
-        width:MediaQuery.of(context).size.width,
+      child: Center(
+        child: CustomImageView(
+          imagePath: 'assets/icons/newLogo.png',
+          height: 100,
+
+          // fit: BoxFit.cover,
+          // height: MediaQuery.of(context).size.height,
+          // width:MediaQuery.of(context).size.width,
+        ),
       ),
+      // child: CustomImageView(
+      //   imagePath: 'assets/images/UpdatedSplash.png',
+      //   fit: BoxFit.cover,
+      //   height: MediaQuery.of(context).size.height,
+      //   width:MediaQuery.of(context).size.width,
+      // ),
     );
   }
 }

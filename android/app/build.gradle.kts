@@ -9,7 +9,7 @@ plugins {
 android {
     namespace = "com.user.user_health_care"
     compileSdk = flutter.compileSdkVersion
-    ndkVersion = "27.0.12077973"
+    ndkVersion = "26.1.10909125"
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
@@ -24,14 +24,31 @@ android {
         applicationId = "com.user.user_health_care"
         minSdk = 23
         targetSdk = flutter.targetSdkVersion
-        versionCode = flutter.versionCode
-        versionName = flutter.versionName
+        versionCode = 4
+        versionName = "1.0.4"
+    }
+    signingConfigs {
+        create("release") {
+            storeFile = file("user_health_care.jks")
+            storePassword = "123456"
+            keyAlias = "user_health_care"
+            keyPassword = "123456"
+        }
     }
 
     buildTypes {
-        release {
-            signingConfig = signingConfigs.getByName("debug")
+        getByName("release") {
+            signingConfig = signingConfigs.getByName("release")
+            isMinifyEnabled = false
+            isShrinkResources = false
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro"
+            )
         }
+    }
+    packagingOptions {
+        pickFirst("**/libc++_shared.so")
     }
 
 }

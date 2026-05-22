@@ -78,7 +78,8 @@ class CustomHomeAppBar extends StatelessWidget implements PreferredSizeWidget {
                   onTap: () {
                     navSlideFromTop(context, const NotificationScreen());
                   },
-                  imagePath: 'assets/images/notificationIcon.png',
+                  imagePath: 'assets/icons/notification.png',
+                //  imagePath: 'assets/images/notificationIcon.png',
                   height: 40,
                   width: 40,
                 ),
@@ -86,21 +87,35 @@ class CustomHomeAppBar extends StatelessWidget implements PreferredSizeWidget {
             ),
             const SizedBox(height: 12),
             Container(
+              height: 50,
               decoration: BoxDecoration(
-                color: ColorResource.lightBlue,
-                borderRadius: BorderRadius.circular(10.0),
+                color: Colors.grey.shade100,
+                borderRadius: BorderRadius.circular(30),
               ),
-              child: TextField(
+              child: const TextField(
                 decoration: InputDecoration(
-                  fillColor: ColorResource.lightBlue,
-                  prefixIcon: Icon(Icons.search, color: Colors.grey.shade500),
-                  hintText: "Search...",
+                  hintText: "Search doctors, services, records...",
+                  prefixIcon: Icon(Icons.search),
                   border: InputBorder.none,
-                  contentPadding: const EdgeInsets.symmetric(
-                      vertical: 10.0, horizontal: 10.0),
                 ),
               ),
             ),
+            // Container(
+            //   decoration: BoxDecoration(
+            //     color: ColorResource.lightBlue,
+            //     borderRadius: BorderRadius.circular(10.0),
+            //   ),
+            //   child: TextField(
+            //     decoration: InputDecoration(
+            //       fillColor: ColorResource.lightBlue,
+            //       prefixIcon: Icon(Icons.search, color: Colors.grey.shade500),
+            //       hintText: "Search...",
+            //       border: InputBorder.none,
+            //       contentPadding: const EdgeInsets.symmetric(
+            //           vertical: 10.0, horizontal: 10.0),
+            //     ),
+            //   ),
+            // ),
           ],
         ),
       ),

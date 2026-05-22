@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 
 class ColorResource {
-  static const Color primaryBlue = Color(0xFF0165FC);     // Main CTA button, icons
+  static const Color primaryBlue = Color(0xff082855);     // Main CTA button, icons
+  // static const Color primaryBlue = Color(0xFF0165FC);     // Main CTA button, icons
+ static const Color secondaryBlue = Color(0xFF0165FC);     // Main CTA button, icons
   static const Color lightBlue = Color(0xFFE6F0FF);       // Backgrounds / cards
   static const Color gradientLightBlue = Color(0xFFB9D4FD);       // Backgrounds / cards
   static const Color gradientDarkBlue = Color(0xFF013C96);       // Backgrounds / cards

@@ -40,8 +40,17 @@ class _UpcomingAppointmentsCardState extends State<UpcomingAppointmentsCard> {
       child: Container(
         margin: const EdgeInsets.only(bottom: 18),
         decoration: BoxDecoration(
-          color: ColorResource.primaryBlue,
-          borderRadius: BorderRadius.circular(6),
+          // color: ColorResource.primaryBlue,
+          borderRadius: BorderRadius.circular(12),
+          gradient: LinearGradient(
+            colors: [
+              Color(0xff082855),
+              // Color(0xff2458a4),
+              Color(0xff2c6cc9),
+              //ColorResource.primaryBlue,
+              //  ColorResource.primaryBlue.withOpacity(.7)
+            ],
+          ),
           boxShadow: [
             BoxShadow(
               color: Colors.black.withOpacity(0.08),
@@ -62,6 +71,7 @@ class _UpcomingAppointmentsCardState extends State<UpcomingAppointmentsCard> {
               child: InkWell(
                   onTap: () async {
                     final appointmentId = widget.model.sId ?? '';
+                    int? _remoteUid;
                     final uid = 1234; // could be any unique int per user
                     final response = await http.get(Uri.parse(
                       // 'http://192.168.1.4:5002/api/join-call/$appointmentId/$uid'
@@ -85,15 +95,15 @@ class _UpcomingAppointmentsCardState extends State<UpcomingAppointmentsCard> {
                         return;
                       }
 
-                      // navSlideFromRight(
-                      //   context,
-                      //   AgoraVideoCallScreen(
-                      //     channelName: channel,
-                      //     token: token,
-                      //     uid: uid,
-                      //     appointmentId: appointmentId,
-                      //   ),
-                      // );
+                      navSlideFromRight(
+                        context,
+                        AgoraVideoCallScreen(
+                          channelName: channel,
+                          token: token,
+                          uid: uid,
+                          appointmentId: appointmentId,
+                        ),
+                      );
                     } else if (response.statusCode == 400) {
                       HelperMethods.showFloatingToast(context, message: "Call has already ended.");
                     } else {
@@ -192,19 +202,21 @@ class _UpcomingAppointmentsCardState extends State<UpcomingAppointmentsCard> {
                   width: double.infinity,
                   child: Row(
                     children: [
-                      Container(
-                        width: 1,
-                        height: 40,
-                        color: Colors.white.withOpacity(0.5),
-                      ),
+                      // Container(
+                      //   width: 1,
+                      //   height: 40,
+                      //   // color: Colors.white24,
+                      //   color: Colors.white.withOpacity(0.5),
+                      // ),
                       Expanded(
                         child: Container(
                           padding: const EdgeInsets.symmetric(vertical: 14),
                           decoration: const BoxDecoration(
-                            color: ColorResource.gradientLightBlue,
+                            color: Colors.white24,
+                         //   color: ColorResource.gradientLightBlue,
                             borderRadius: BorderRadius.only(
-                              topLeft: Radius.circular(6),
-                              bottomLeft: Radius.circular(6),
+                              topLeft: Radius.circular(10),
+                              bottomLeft: Radius.circular(10),
                             ),
                           ),
                           alignment: Alignment.center,
@@ -227,10 +239,11 @@ class _UpcomingAppointmentsCardState extends State<UpcomingAppointmentsCard> {
                       Container(
                         padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 12),
                         decoration: const BoxDecoration(
-                          color: ColorResource.gradientLightBlue,
+                          color: Colors.white24,
+                          // color: ColorResource.gradientLightBlue,
                           borderRadius: BorderRadius.only(
-                            topRight: Radius.circular(6),
-                            bottomRight: Radius.circular(6),
+                            topRight: Radius.circular(10),
+                            bottomRight: Radius.circular(10),
                           ),
                         ),
                         alignment: Alignment.center,

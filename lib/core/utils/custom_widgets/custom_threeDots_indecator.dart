@@ -74,9 +74,12 @@ class _ThreeDotsLoaderState extends State<ThreeDotsLoader> with SingleTickerProv
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: List.generate(3, _buildDot),
+    return FittedBox(
+      fit: BoxFit.scaleDown,
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: List.generate(3, _buildDot),
+      ),
     );
   }
 }

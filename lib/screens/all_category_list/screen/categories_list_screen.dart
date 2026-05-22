@@ -38,7 +38,7 @@ class _CategoriesListScreenState extends State<CategoriesListScreen> {
     return Scaffold(
       backgroundColor: ColorResource.white,
       appBar: const CustomAppBar(title: "Select Category"),
-      body: Padding(
+      body: SingleChildScrollView(
         padding: const EdgeInsets.symmetric(horizontal: 16.0),
         child: Consumer<CategoriesListViewmodel>(
           builder: (context, viewModel, _) {
@@ -65,69 +65,67 @@ class _CategoriesListScreenState extends State<CategoriesListScreen> {
                   },
                 ),
                 const SizedBox(height: 20),
-                Expanded(
-                  child: LayoutBuilder(
-                    builder: (context, constraints) {
-                      final itemWidth = (constraints.maxWidth - 24) / 3;
-                      return Wrap(
-                        spacing: 12,
-                        runSpacing: 12,
-                        children: List.generate(viewModel.categories.length, (index) {
-                          final item = viewModel.categories[index];
-                          final isSelected = selectedIndex == index;
+                LayoutBuilder(
+                  builder: (context, constraints) {
+                    final itemWidth = (constraints.maxWidth - 24) / 3;
+                    return Wrap(
+                      spacing: 12,
+                      runSpacing: 12,
+                      children: List.generate(viewModel.categories.length, (index) {
+                        final item = viewModel.categories[index];
+                        final isSelected = selectedIndex == index;
 
-                          return GestureDetector(
-                            onTap: () {
-                              setState(() {
-                                selectedIndex = index;
-                              });
+                        return GestureDetector(
+                          onTap: () {
+                            setState(() {
+                              selectedIndex = index;
+                            });
 
-                              globalSpecializationCategoryId = item.sId ?? '';
-                              navSlideFromRight(context,BookingTypeScreen(isBack: true, byPassSymptomsAndCategoryScreen: true));
-                            },
-                            child: Container(
-                              width: itemWidth,
-                              height: 110,
-                              padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
-                              decoration: BoxDecoration(
-                                color: isSelected ? ColorResource.lightBlue : Colors.white,
-                                border: Border.all(
-                                  color: isSelected ? ColorResource.primaryBlue : Colors.grey.shade200,
-                                  width: isSelected ? 2 : 1,
-                                ),
-                                borderRadius: BorderRadius.circular(12),
+                            globalSpecializationCategoryId = item.sId ?? '';
+                            navSlideFromRight(context,BookingTypeScreen(isBack: true, byPassSymptomsAndCategoryScreen: true));
+                          },
+                          child: Container(
+                            width: itemWidth,
+                            height: 110,
+                            padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
+                            decoration: BoxDecoration(
+                              color: isSelected ? ColorResource.lightBlue : Colors.white,
+                              border: Border.all(
+                                color: isSelected ? ColorResource.primaryBlue : Colors.grey.shade200,
+                                width: isSelected ? 2 : 1,
                               ),
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  CustomImageView(
-                                    imagePath: item.image != null
-                                        ? '${AppUrl.baseUrl}/${item.image}'
-                                        : "assets/images/emergencyIcon.png",
-                                    height: 32,
-                                    width: 32,
-                                    fit: BoxFit.contain,
-                                  ),
-                                  const SizedBox(height: 8),
-                                  CustomText(
-                                    text: item.name ?? "Unknown",
-                                    fontSize: 13,
-                                    fontWeight: FontWeight.w600,
-                                    color: isSelected
-                                        ? ColorResource.primaryBlue
-                                        : ColorResource.darkText,
-                                    textAlign: TextAlign.center,
-                                    maxLines: 2,
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
-                                ],
-                              ),
+                              borderRadius: BorderRadius.circular(12),
                             ),
-                          );
-                        }),
-                      );
-                    },
-                  ),
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                CustomImageView(
+                                  imagePath: item.image != null
+                                      ? '${AppUrl.baseUrl}/${item.image}'
+                                      : "assets/images/emergencyIcon.png",
+                                  height: 32,
+                                  width: 32,
+                                  fit: BoxFit.contain,
+                                ),
+                                const SizedBox(height: 8),
+                                CustomText(
+                                  text: item.name ?? "Unknown",
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.w600,
+                                  color: isSelected
+                                      ? ColorResource.primaryBlue
+                                      : ColorResource.darkText,
+                                  textAlign: TextAlign.center,
+                                  maxLines: 2,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ],
+                            ),
+                          ),
+                        );
+                      }),
+                    );
+                  },
                 ),
               ],
             );

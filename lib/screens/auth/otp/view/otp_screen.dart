@@ -68,15 +68,23 @@ class _OtpScreenState extends State<OtpScreen> {
               padding: const EdgeInsets.symmetric(horizontal: 20),
               child: Column(
                 children: [
-                  SizedBox(height: height * 0.15),
+                  SizedBox(height: height * 0.17),
+                  CustomImageView(
+                    imagePath: 'assets/icons/newLogo.png',
+                    height: 120,
+
+                    // fit: BoxFit.cover,
+                    // height: MediaQuery.of(context).size.height,
+                    // width:MediaQuery.of(context).size.width,
+                  ),
 
                   // Logo
-                  CustomImageView(
-                    imagePath: 'assets/images/appLogoUpdated1.png',
-                    height: height * 0.20,
-                    width: width * 0.35,
-                    fit: BoxFit.contain,
-                  ),
+                  // CustomImageView(
+                  //   imagePath: 'assets/images/appLogoUpdated1.png',
+                  //   height: height * 0.20,
+                  //   width: width * 0.35,
+                  //   fit: BoxFit.contain,
+                  // ),
                   SizedBox(height: height * 0.02),
 
                   /// OTP Card
@@ -87,7 +95,9 @@ class _OtpScreenState extends State<OtpScreen> {
                       gradient: const LinearGradient(
                         colors: [
                           ColorResource.gradientLightBlue,
-                          ColorResource.gradientDarkBlue,
+                          ColorResource.primaryBlue,
+                          // ColorResource.gradientLightBlue,
+                          // ColorResource.gradientDarkBlue,
                         ],
                         begin: Alignment.topCenter,
                         end: Alignment.bottomCenter,

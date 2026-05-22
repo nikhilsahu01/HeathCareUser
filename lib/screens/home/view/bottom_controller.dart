@@ -63,7 +63,8 @@ class BottomNavControllerState extends State<BottomNavController> {
             topRight: Radius.circular(30),
           ),
           child: SizedBox(
-            height: screenHeight * 0.13, // responsive height
+            height: screenHeight * 0.09, // responsive height
+            // height: screenHeight * 0.13, // responsive height
             child: BottomAppBar(
               shape: const CircularNotchedRectangle(),
               notchMargin: 6.0,
@@ -123,21 +124,21 @@ class BottomNavControllerState extends State<BottomNavController> {
       behavior: HitTestBehavior.opaque,
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 250),
-        padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 8),
+        padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 3),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             Icon(
               icon,
               color: Colors.white.withOpacity(isSelected ? 1 : 0.6),
-              size: 26,
+              size: 22,
             ),
             const SizedBox(height: 4),
             Text(
               label,
               style: TextStyle(
                 color: Colors.white.withOpacity(isSelected ? 1 : 0.6),
-                fontSize: 11,
+                fontSize: 10,
                 fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
               ),
             ),

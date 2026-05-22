@@ -8,6 +8,7 @@ import 'package:provider/provider.dart';
 
 import '../address_model.dart';
 import '../address_provider.dart';
+import '../map_screen.dart';
 
 
 class LocationScreen extends StatefulWidget {
@@ -188,33 +189,7 @@ class _LocationScreenState extends State<LocationScreen> {
             icon: const Icon(Icons.edit, color: Colors.blue),
             onPressed: () => openForm(data: address, index: index),
           ),
-          // IconButton(
-          //   icon: const Icon(Icons.delete, color: Colors.red),
-          //   onPressed: () async {
-          //     final confirm = await showDialog<bool>(
-          //       context: context,
-          //       builder: (_) => AlertDialog(
-          //         backgroundColor: ColorResource.white,
-          //         title: const Text("Delete Address"),
-          //         content:
-          //         const Text("Are you sure you want to delete this address?"),
-          //         actions: [
-          //           TextButton(
-          //               onPressed: () => Navigator.pop(context, false),
-          //               child: const Text("Cancel")),
-          //           TextButton(
-          //               onPressed: () => Navigator.pop(context, true),
-          //               child: const Text("Delete")),
-          //         ],
-          //       ),
-          //     );
-          //     if (confirm == true) {
-          //       await Provider.of<AddressViewModel>(context, listen: false)
-          //           .deleteAddress(address.sId ?? '');
-          //       // navPop(context: context);
-          //     }
-          //   },
-          // ),
+
         ],
       ),
     );
@@ -255,6 +230,9 @@ class _LocationScreenState extends State<LocationScreen> {
               _buildTextField(stateController, "State *"),
               _buildTextField(countryController, "Country *"),
               _buildTextField(pincodeController, "Pincode *"),
+              //label: countryController.text == "India"
+              //     ? "Pincode *"
+              //     : "Zip Code *",
               _buildTextField(floorController, "Floor *"),
               _buildTextField(address1Controller,
                   "House/Flat Number & Building Name *"),
@@ -325,23 +303,68 @@ class _LocationScreenState extends State<LocationScreen> {
       ),
     );
   }
-
   Widget _buildTextField(TextEditingController controller, String label,
       {int? maxLength, TextInputType keyboardType = TextInputType.text}) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 12),
-      child: TextFormField(
-        controller: controller,
-        maxLength: maxLength,
-        keyboardType: keyboardType,
-        validator: (val) =>
-        val == null || val.isEmpty ? "Required field" : null,
-        decoration: InputDecoration(
-          counterText: '',
-          labelText: label,
-          border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+      child: GestureDetector(
+        onTap: () async {
+          final result = await Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => const MapScreen()),
+          );
+
+          if (result != null) {
+            // controller.text = result;
+            if (result != null) {
+              address1Controller.text = result["address"] ?? "";
+              cityController.text = result["city"] ?? "";
+              stateController.text = result["state"] ?? "";
+              pincodeController.text = result["pincode"] ?? "";
+              countryController.text = result["country"] ?? "";
+            }
+
+            /// OPTIONAL: split karke fill kar sakte ho
+            // cityController.text = ...
+            // stateController.text = ...
+            // pincodeController.text = ...
+          }
+        },
+        child: AbsorbPointer(
+          child: TextFormField(
+            controller: controller,
+            maxLength: maxLength,
+            keyboardType: keyboardType,
+            validator: (val) =>
+            val == null || val.isEmpty ? "Required field" : null,
+            decoration: InputDecoration(
+              counterText: '',
+              labelText: label,
+              border:
+              OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+            ),
+          ),
         ),
       ),
     );
   }
+
+  // Widget _buildTextField(TextEditingController controller, String label,
+  //     {int? maxLength, TextInputType keyboardType = TextInputType.text}) {
+  //   return Padding(
+  //     padding: const EdgeInsets.only(bottom: 12),
+  //     child: TextFormField(
+  //       controller: controller,
+  //       maxLength: maxLength,
+  //       keyboardType: keyboardType,
+  //       validator: (val) =>
+  //       val == null || val.isEmpty ? "Required field" : null,
+  //       decoration: InputDecoration(
+  //         counterText: '',
+  //         labelText: label,
+  //         border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+  //       ),
+  //     ),
+  //   );
+  // }
 }
