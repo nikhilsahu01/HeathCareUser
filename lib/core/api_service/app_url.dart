@@ -3,7 +3,7 @@ class AppUrl {
   // static const String baseUrl = 'http://192.168.1.11:5002';
   // //live
   //static const String baseUrl = 'https://94np5jjf-5003.inc1.devtunnels.ms';
-  static const String baseUrl = 'http://159.89.146.245:4587';
+  static const String baseUrl = 'https://admin.olcure.com';
   static const String apiKey = 'AIzaSyCSk_LBk7QP0k4YUfX61t_QF8ItPuZzsoc';
   static const String getOtp = '$baseUrl/api/user/auth/send-otp';
   static const String verifyOtp = '$baseUrl/api/user/auth/verify-otp';
@@ -29,6 +29,10 @@ class AppUrl {
   static const String videoCall = '$baseUrl/api/join-call';
   static const String ambulanceBooking = '$baseUrl/api/user/ambulanceBooking/create';
   static const String traumaCreate = '$baseUrl/api/user/traumaBooking/create';
+  static const String cmsData = '$baseUrl/api/user/cmsData/list';
+  static const String search = '$baseUrl/api/user/search';
+
+
   //pradeep
   static const String userAddress = '$baseUrl/api/user/userAddress';
   static const String registerApi = '$baseUrl/api/user/auth/register';

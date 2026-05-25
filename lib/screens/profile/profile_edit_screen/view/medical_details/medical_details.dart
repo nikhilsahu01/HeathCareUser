@@ -2,6 +2,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:health_care/core/utils/custom_widgets/custom_app_button.dart';
 
+import '../../../../../core/validation/validator.dart';
+
 class MedicalDetails extends StatefulWidget {
   const MedicalDetails({super.key});
 
@@ -12,6 +14,7 @@ class MedicalDetails extends StatefulWidget {
 class _MedicalDetailsState extends State<MedicalDetails> {
   String? selectedAllergies;
   String? selectedCurrentMedications;
+  final _formKey = GlobalKey<FormState>();
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -121,17 +124,22 @@ class _MedicalDetailsState extends State<MedicalDetails> {
           ),
           child: Padding(
             padding: const EdgeInsets.only(left: 10,),
-            child: TextField(
-              textAlignVertical: TextAlignVertical.center,
-              keyboardType: TextInputType.text,
-              decoration: InputDecoration(
-                  border: InputBorder.none,
-                  enabledBorder: InputBorder.none,
-                  focusedBorder: InputBorder.none,
-                  hintText: "Past Medications",
-                  hintStyle: TextStyle(color: Color(0xff696E6A))
+            child: Form(
+              key: _formKey,
+              child: TextFormField(
+                textAlignVertical: TextAlignVertical.center,
+                keyboardType: TextInputType.text,
+                validator: Validators.pastMeditation,
+                decoration: InputDecoration(
+                    border: InputBorder.none,
+                    enabledBorder: InputBorder.none,
+                    focusedBorder: InputBorder.none,
+                    hintText: "Past Medications",
+                    hintStyle: TextStyle(color: Color(0xff696E6A))
+                ),
+
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500,color: Color(0xff696E6A)),
               ),
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500,color: Color(0xff696E6A)),
             ),
           ),
         ),
@@ -153,7 +161,7 @@ class _MedicalDetailsState extends State<MedicalDetails> {
           ),
           child: Padding(
             padding: const EdgeInsets.only(left: 10, ),
-            child: TextField(
+            child: TextFormField(
               textAlignVertical: TextAlignVertical.center,
               keyboardType: TextInputType.text,
               decoration: InputDecoration(
@@ -232,7 +240,14 @@ class _MedicalDetailsState extends State<MedicalDetails> {
           ),
         ),
         SizedBox(height: 20,),
-        CustomAppButton(label: 'Save',onPressed: () {  },),
+        CustomAppButton(
+          label: 'Save',
+          onPressed: () {
+
+            _formKey.currentState!.validate();
+
+          },
+        ),
       ],
     );
   }

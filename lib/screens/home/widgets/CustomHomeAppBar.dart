@@ -1,7 +1,10 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:health_care/core/utils/custom_widgets/custom_image_view.dart';
 import 'package:health_care/core/utils/custom_widgets/custom_threeDots_indecator.dart';
 import 'package:health_care/core/utils/navigation_helper.dart';
+import 'package:health_care/search/ui/search_screen.dart';
 import 'package:provider/provider.dart';
 import '../../../core/utils/theams/color_resource.dart';
 import '../../location_screen/address_provider.dart';
@@ -11,11 +14,9 @@ import '../../notfications/view/notifications.dart';
 class CustomHomeAppBar extends StatelessWidget implements PreferredSizeWidget {
   final double height;
 
-  const CustomHomeAppBar({
-    super.key,
-    required this.height,
-  });
+  CustomHomeAppBar({super.key, required this.height});
 
+  Timer? _debouncer;
   @override
   Widget build(BuildContext context) {
     return SafeArea(
@@ -29,10 +30,7 @@ class CustomHomeAppBar extends StatelessWidget implements PreferredSizeWidget {
               children: [
                 GestureDetector(
                   onTap: () {
-                    navSlideFromTop(
-                      context,
-                      const LocationScreen(),
-                    );
+                    navSlideFromTop(context, const LocationScreen());
                   },
                   child: Row(
                     children: [
@@ -43,11 +41,14 @@ class CustomHomeAppBar extends StatelessWidget implements PreferredSizeWidget {
                       Consumer<AddressViewModel>(
                         builder: (context, addressVM, _) {
                           if (addressVM.isLoading) {
-                            return const ThreeDotsLoader(color: ColorResource.primaryBlue,);
+                            return const ThreeDotsLoader(
+                              color: ColorResource.primaryBlue,
+                            );
                           }
 
                           final addr = addressVM.defaultAddress;
-                          if (addr == null || (addr.addressLine1?.isEmpty ?? true)) {
+                          if (addr == null ||
+                              (addr.addressLine1?.isEmpty ?? true)) {
                             return const Text(
                               "+Add Address",
                               style: TextStyle(
@@ -79,7 +80,7 @@ class CustomHomeAppBar extends StatelessWidget implements PreferredSizeWidget {
                     navSlideFromTop(context, const NotificationScreen());
                   },
                   imagePath: 'assets/icons/notification.png',
-                //  imagePath: 'assets/images/notificationIcon.png',
+                  //  imagePath: 'assets/images/notificationIcon.png',
                   height: 40,
                   width: 40,
                 ),
@@ -92,11 +93,26 @@ class CustomHomeAppBar extends StatelessWidget implements PreferredSizeWidget {
                 color: Colors.grey.shade100,
                 borderRadius: BorderRadius.circular(30),
               ),
-              child: const TextField(
-                decoration: InputDecoration(
-                  hintText: "Search doctors, services, records...",
-                  prefixIcon: Icon(Icons.search),
-                  border: InputBorder.none,
+              child: GestureDetector(
+                onTap: (){
+                  Navigator.push(context, MaterialPageRoute(builder: (context) {
+                   return SearchScreen();
+                  },));
+                },
+                child: AbsorbPointer(
+                  child: TextField(
+                    decoration: const InputDecoration(
+                      hintText: "Search doctors, services, records...",
+                      prefixIcon: Icon(Icons.search),
+                      border: InputBorder.none,
+                    ),
+                    onChanged: (e) {
+                      if (_debouncer!.isActive) return;
+                      Timer(Duration(milliseconds: 700), () {
+                        print(e);
+                      });
+                    },
+                  ),
                 ),
               ),
             ),
