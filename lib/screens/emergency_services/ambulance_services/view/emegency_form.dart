@@ -182,10 +182,10 @@ class _EmergencyFormScreenState extends State<EmergencyFormScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                _buildTextField(pro.patientNameController, 'Enter Patient’s Name*'),
-                _buildTextField(pro.mobilenumberController, 'Mobile Number*'),
-                _buildTextField(pro.pickupController, 'Pickup Location*'),
-                _buildTextField(pro.dropController, 'Drop Location*'),
+                _buildTextField(pro.patientNameController, 'Enter Patient’s Name', isRequired: true),
+                _buildTextField(pro.mobilenumberController, 'Mobile Number', isRequired: true),
+                _buildTextField(pro.pickupController, 'Pickup Location', isRequired: true),
+                _buildTextField(pro.dropController, 'Drop Location', isRequired: true),
                 if (bookingFor == 'bookingForLater') ...[
                   _buildDateField(pro.dateController, 'Date'),
                   const SizedBox(height: 20),
@@ -254,18 +254,68 @@ class _EmergencyFormScreenState extends State<EmergencyFormScreen> {
     );
   }
 
-  Widget _buildTextField(TextEditingController controller, String hint) {
+
+  Widget _buildTextField(
+      TextEditingController controller,
+      String hint, {
+        bool isRequired = false,
+      }) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0),
-      child: TextField(
-        controller: controller,
-        decoration: InputDecoration(
-          hintText: hint,
-          border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
-        ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+
+          /// 🔹 LABEL WITH STAR
+          RichText(
+            text: TextSpan(
+              text: hint,
+              style: const TextStyle(
+                color: Colors.black,
+                fontSize: 14,
+                fontWeight: FontWeight.w500,
+              ),
+              children: isRequired
+                  ? const [
+                TextSpan(
+                  text: " *",
+                  style: TextStyle(color: Colors.red),
+                )
+              ]
+                  : [],
+            ),
+          ),
+
+          const SizedBox(height: 6),
+
+          /// 🔹 INPUT FIELD
+          TextField(
+            controller: controller,
+            decoration: InputDecoration(
+              hintText: "Enter $hint",
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
+
+
+  // Widget _buildTextField(TextEditingController controller, String hint) {
+  //   return Padding(
+  //     padding: const EdgeInsets.symmetric(vertical: 8.0),
+  //     child: TextField(
+  //       controller: controller,
+  //       decoration: InputDecoration(
+  //         hintText: hint,
+  //         border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+  //       ),
+  //     ),
+  //   );
+  // }
 
   Widget _buildDateField(TextEditingController controller, String label) {
     return GestureDetector(

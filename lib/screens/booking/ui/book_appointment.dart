@@ -209,7 +209,7 @@ class _BookAppointmentState extends State<BookAppointment> {
       bottomNavigationBar: Padding(
         padding: const EdgeInsets.all(16),
         child: CustomAppButton(
-          label: 'Add Patient',
+          label: 'Book Appointment',
           onPressed: () {
             if (selectedSlot == null) {
               HelperMethods.showCustomSnackbar(context, message: 'Please select an available slot.');
