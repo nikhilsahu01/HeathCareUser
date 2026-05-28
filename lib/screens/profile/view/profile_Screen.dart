@@ -4,13 +4,17 @@ import 'package:health_care/core/api_service/app_url.dart';
 import 'package:health_care/core/utils/custom_widgets/custom_appBar.dart';
 import 'package:health_care/core/utils/custom_widgets/custom_image_view.dart';
 import 'package:health_care/core/utils/theams/color_resource.dart';
+import 'package:health_care/screens/help_Center/ui/help_center.dart';
+import 'package:health_care/screens/profile/view/ui/cms_screen.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../../core/utils/navigation_helper.dart';
 import '../../after_care/view/after_care_screen.dart';
 import '../../ambulance/ui/ambulanceScreen.dart';
 import '../../ambulance/ui/bookingSummaryScreen.dart';
+import '../../rating/ui/rating_screen.dart';
 import '../../services/my_health_record/view/my_health_records_screen.dart';
+import '../../setting/ui/setting_screen.dart';
 import '../../splash/splash_screen.dart';
 import '../profile_edit_screen/profile_view_model/profile_view_model.dart';
 import '../profile_edit_screen/view/edit_profile.dart';
@@ -138,12 +142,62 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   }),   _menuButton('Booking Summary', () {
                     navSlideFromRight(context, BookingSummaryScreen());
                   }),
-                  _menuButton('Help Center', () {}),
-                  _menuButton('Settings', () {}),
-                  _menuButton('Rating', () {}),
-                  _menuButton('About Us', () {}),
-                  _menuButton('Privacy & Policy', () {}),
-                  _menuButton('Terms & Conditions', () {}),
+                  _menuButton('Help Center', () {
+                    Navigator.push(context, MaterialPageRoute(builder: (context) => HelpCenter(),));
+                  }),
+                  _menuButton('Settings', () {
+                    Navigator.push(context, MaterialPageRoute(builder: (context) => SettingScreen(),));
+                  }),
+                  _menuButton('Rating', () {
+                     Navigator.push(context, MaterialPageRoute(builder: (context) => ReviewScreen(),));
+                  }),
+                  _menuButton(
+                    'About Us',
+                        () {
+
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => CmsScreen(
+                            type: "about",
+                          ),
+                        ),
+                      );
+
+                    },
+                  ),
+
+                  _menuButton(
+                    'Privacy & Policy',
+                        () {
+
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => CmsScreen(
+                            type: "privacy",
+                          ),
+                        ),
+                      );
+
+                    },
+                  ),
+
+                  _menuButton(
+                    'Terms & Conditions',
+                        () {
+
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => CmsScreen(
+                            type: "terms",
+                          ),
+                        ),
+                      );
+
+                    },
+                  ),
 
                   const SizedBox(height: 12),
                   Row(

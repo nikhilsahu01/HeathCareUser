@@ -20,6 +20,7 @@ import 'package:health_care/screens/emergency_services/accident_trauma/accident_
 import 'package:health_care/screens/location_screen/address_provider.dart';
 import 'package:health_care/screens/notfications/notifications_viewmodel/notifications_provider.dart';
 import 'package:health_care/screens/profile/profile_edit_screen/profile_view_model/profile_view_model.dart';
+import 'package:health_care/screens/profile/view/viewmodel/cms_viewmodel.dart';
 import 'package:health_care/screens/splash/splash_screen.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -90,6 +91,10 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => AddressViewModel()),
         ChangeNotifierProvider(create: (_) => RegistrationViewModel()),
         ChangeNotifierProvider(create: (_) => ProfileViewModel()),
+         ChangeNotifierProvider(create: (_) => CmsViewModel()),
+
+
+
       ],
       child: MaterialApp(
         title: 'Olcure User',

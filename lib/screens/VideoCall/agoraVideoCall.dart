@@ -5,6 +5,7 @@ import 'package:health_care/core/utils/navigation_helper.dart';
 import 'package:health_care/core/utils/theams/color_resource.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
+import 'package:wakelock_plus/wakelock_plus.dart';
 
 import '../../core/coreServices/socket_service/join_call_provider.dart';
 import '../../core/utils/global_variables.dart';
@@ -44,7 +45,10 @@ class _AgoraVideoCallScreenState extends State<AgoraVideoCallScreen> {
   void initState() {
     super.initState();
     _initAgora();
+    WakelockPlus.enable();
   }
+
+
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
@@ -116,6 +120,7 @@ class _AgoraVideoCallScreenState extends State<AgoraVideoCallScreen> {
     );
 
     await _engine.enableVideo();
+    await _engine.enableLocalVideo(true);
     await _engine.startPreview();
 
     await _engine.joinChannel(
@@ -134,6 +139,7 @@ class _AgoraVideoCallScreenState extends State<AgoraVideoCallScreen> {
     context.read<JoinCallNotifier>().removeListener(_checkCanJoinStatus);
     _engine.leaveChannel();
     _engine.release();
+    WakelockPlus.disable();
     super.dispose();
   }
   Widget _buildVideos() {
@@ -269,16 +275,24 @@ class _AgoraVideoCallScreenState extends State<AgoraVideoCallScreen> {
           ),
           // Switch camera button
           RawMaterialButton(
-            onPressed: () {
-              setState(() => _cameraSwitched = !_cameraSwitched);
-              _engine.switchCamera();
+            onPressed: () async{
+              try {
+                await _engine.switchCamera();
+                setState(() {
+                  _cameraSwitched = !_cameraSwitched;
+                });
+              } catch (e) {
+                debugPrint("Camera switch error: $e");
+              }
             },
             shape: const CircleBorder(),
             elevation: 2.0,
             fillColor: ColorResource.primaryBlue,
             padding: const EdgeInsets.all(12.0),
-            child: const Icon(
-              Icons.switch_camera,
+            child: Icon(
+              _cameraSwitched
+                  ? Icons.camera_rear
+                  : Icons.camera_front,
               color: Colors.white,
               size: 20.0,
             ),

@@ -22,10 +22,10 @@ android {
 
     defaultConfig {
         applicationId = "com.user.user_health_care"
-        minSdk = 23
+        minSdk = flutter.minSdkVersion
         targetSdk = flutter.targetSdkVersion
-        versionCode = 4
-        versionName = "1.0.4"
+        versionCode = 5
+        versionName = "1.0.5"
     }
     signingConfigs {
         create("release") {

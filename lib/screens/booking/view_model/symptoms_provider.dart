@@ -42,7 +42,7 @@ class SymptomsViewModel extends ChangeNotifier {
     try {
       if (symName.trim().isEmpty) return;
       final response = await _repository.getSymptomsListApi(symName);
-      _suggestedSymptoms = response.symtomps ?? [];
+      _suggestedSymptoms = response.data?.symtomps ?? [];
       notifyListeners();
     } catch (e) {
       debugPrint('❌ Error fetching symptoms: $e');

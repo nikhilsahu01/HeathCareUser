@@ -24,6 +24,7 @@ class ProfileViewModel extends ChangeNotifier {
   final TextEditingController locationController = TextEditingController();
 
   String? gender;
+  String? status;
   File? profileImageFile; // If user selects a new profile image
 
   /// Fetch Profile Data
@@ -47,13 +48,13 @@ class ProfileViewModel extends ChangeNotifier {
   void _setControllersFromUser(User user) {
     nameController.text = user.name ?? "";
     mobileController.text = user.mobileNo ?? "";
-    emailController.text = 'hardcpde';
+    emailController.text = user.email ?? "";
     dobController.text = user.createdAt ?? ""; //todo
     bloodGroupController.text = user.bloodGroup ?? "";
     maritalStatusController.text = user.maritalStatus ?? "";
     // locationController.text = user.address ?? "";
-    heightController.text = 'Hardecoded';
-    weightController.text = 'Hardecoded';
+    heightController.text = 'height';
+    weightController.text = 'weight';
     if (user.gender == null || user.gender!.isEmpty) {
       gender = "Please Select Your gender";
     } else if (user.gender!.toLowerCase() == 'male') {

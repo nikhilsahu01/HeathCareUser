@@ -2,9 +2,11 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:health_care/core/utils/helper_functions/helpers_methods.dart';
 import 'package:health_care/core/utils/navigation_helper.dart';
+import 'package:intl_phone_field/phone_number.dart';
 import '../../../../core/utils/custom_widgets/custom_app_button.dart';
 import '../../../../core/utils/custom_widgets/custom_image_view.dart';
 import '../../../../core/utils/custom_widgets/custom_threeDots_indecator.dart';
+import '../../../../core/utils/custom_widgets/valdationFunctions.dart';
 import '../../../../core/utils/global_variables.dart';
 import '../../../../core/utils/theams/color_resource.dart';
 import '../../otp/view/otp_screen.dart';
@@ -28,6 +30,101 @@ class _LoginScreenState extends State<LoginScreen> {
   bool isAgreed = false;
   bool isSending = false;
   bool? isNewUser;
+  int maxLength = 10;
+
+
+  String? validatePhoneNumber(PhoneNumber? value) {
+
+    if (value == null || value.number.isEmpty) {
+      return 'Mobile number is required';
+    }
+
+    final number = value.number;
+    final country = value.countryISOCode;
+
+    /// 🌍 GLOBAL BASIC RANGE
+    if (number.length < 6 || number.length > 15) {
+      return 'Invalid mobile number';
+    }
+
+    onCountryChanged: (country) {
+
+      switch(country.code) {
+
+        case 'IN':
+          maxLength = 10;
+          break;
+
+        case 'US':
+          maxLength = 10;
+          break;
+
+        case 'AE':
+          maxLength = 9;
+          break;
+
+        case 'GB':
+          maxLength = 11;
+          break;
+
+        default:
+          maxLength = 15;
+      }
+
+      setState(() {});
+    };
+
+    switch (country) {
+
+    /// 🇮🇳 INDIA
+      case 'IN':
+
+        if (!RegExp(r'^[6-9]\d{9}$').hasMatch(number)) {
+          return 'Enter valid Indian mobile number';
+        }
+
+        break;
+
+    /// 🇺🇸 USA
+      case 'US':
+
+        if (number.length != 10) {
+          return 'US number must be 10 digits';
+        }
+
+        break;
+
+    /// 🇦🇪 UAE
+      case 'AE':
+
+        if (!RegExp(r'^5\d{8}$').hasMatch(number)) {
+          return 'Enter valid UAE mobile number';
+        }
+
+        break;
+
+    /// 🇬🇧 UK
+      case 'GB':
+
+        if (number.length < 10 || number.length > 11) {
+          return 'Enter valid UK number';
+        }
+
+        break;
+
+      default:
+
+      /// 🌍 FINAL LIB VALIDATION
+      /// 🌍 FINAL LIB VALIDATION
+    }
+    if (!value.isValidNumber()) {
+      return 'Enter valid mobile number';
+    }
+
+    return null;
+  }
+
+
   @override
   Widget build(BuildContext context) {
     final height = MediaQuery.of(context).size.height;
@@ -106,115 +203,67 @@ class _LoginScreenState extends State<LoginScreen> {
                             borderRadius: BorderRadius.circular(12),
                             border: Border.all(color: ColorResource.white),
                           ),
-                          // child: IntlPhoneField(
-                          //   initialCountryCode: 'IN',
-                          //   showCountryFlag: false,
-                          //   showDropdownIcon: true,
-                          //   dropdownIcon: const Icon(Icons.arrow_drop_down, color: ColorResource.white),
-                          //   style: const TextStyle(color: ColorResource.white),
-                          //   dropdownTextStyle: const TextStyle(color: ColorResource.white),
-                          //   cursorColor: ColorResource.white,
-                          //   keyboardType: TextInputType.phone,
-                          //   disableLengthCheck: false,
-                          //   autovalidateMode: AutovalidateMode.onUserInteraction,
-                          //   decoration: const InputDecoration(
-                          //     hintText: 'Enter Your Mobile Number',
-                          //     hintStyle: TextStyle(color: ColorResource.white),
-                          //     border: InputBorder.none,
-                          //     fillColor: Colors.transparent,
-                          //     // borderRadius: BorderRadius.circular(12),
-                          //     contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 12),
-                          //     counterText: '',
-                          //   ),
-                          //   validator: (value) {
-                          //     if (value == null || value.number.isEmpty) {
-                          //       return 'Mobile number is required';
-                          //     }
-                          //
-                          //     /// ✅ Built-in validation (BEST)
-                          //     if (!value.isValidNumber()) {
-                          //       return 'Enter a valid mobile number';
-                          //     }
-                          //
-                          //     /// ✅ Extra safety (optional)
-                          //     if (value.countryISOCode == 'IN' && value.number.length != 10) {
-                          //       return 'Indian number must be 10 digits';
-                          //     }
-                          //
-                          //     return null;
-                          //   },
-                          //   onChanged: (phone) {
-                          //     fullPhoneNumber = phone.completeNumber;
-                          //     phoneNumber = phone.number;
-                          //     countryCode = phone.countryCode;
-                          //   },
-                          // ),
+
                           child: IntlPhoneField(
+
                             initialCountryCode: 'IN',
+
                             showCountryFlag: false,
-                            disableLengthCheck: true, // ❗ IMPORTANT (we handle manually)
-                            dropdownIcon: const Icon(Icons.arrow_drop_down, color: Colors.white),
-                            style: const TextStyle(color: Colors.white),
-                            dropdownTextStyle: const TextStyle(color: Colors.white),
+
+                            disableLengthCheck: true,
+
+                            dropdownIcon: const Icon(
+                              Icons.arrow_drop_down,
+                              color: Colors.white,
+                            ),
+
+                            style: const TextStyle(
+                              color: Colors.white,
+                            ),
+
+                            dropdownTextStyle: const TextStyle(
+                              color: Colors.white,
+                            ),
+
                             cursorColor: Colors.white,
+
                             keyboardType: TextInputType.phone,
+
                             autovalidateMode: AutovalidateMode.onUserInteraction,
+
                             inputFormatters: [
                               FilteringTextInputFormatter.digitsOnly,
-                              LengthLimitingTextInputFormatter(10),
+                              LengthLimitingTextInputFormatter(maxLength),
                             ],
-                              decoration: const InputDecoration(
-                                fillColor: Colors.transparent,
-                                hintText: 'Enter Your Mobile Number',
-                                hintStyle: TextStyle(color: Colors.white),
-                                border: InputBorder.none,
-                                contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+
+                            decoration: const InputDecoration(
+                              fillColor: Colors.transparent,
+                              hintText: 'Enter Your Mobile Number',
+                              hintStyle: TextStyle(color: Colors.white),
+                              border: InputBorder.none,
+                              contentPadding: EdgeInsets.symmetric(
+                                horizontal: 12,
+                                vertical: 12,
+                              ),
                               counterText: '',
                             ),
 
-                            /// ✅ PRO VALIDATION
-                            validator: (value) {
-                              if (value == null || value.number.isEmpty) {
-                                return 'Mobile number is required';
-                              }
+                            validator: validatePhoneNumber,
 
-                              /// ONLY LOCAL NUMBER LENGTH (IMPORTANT)
-                              final number = value.number;
-                              final country = value.countryISOCode;
-
-                              /// 🌍 Common valid range (E.164 standard)
-                              if (number.length < 6 || number.length > 15) {
-                                return 'Invalid mobile number';
-                              }
-
-                              /// 🇮🇳 India strict rule
-                              if (country == 'IN' && number.length != 10) {
-                                return 'Indian number must be 10 digits';
-                              }
-
-                              /// 🇺🇸 US strict
-                              if (country == 'US' && number.length != 10) {
-                                return 'US number must be 10 digits';
-                              }
-
-                              /// 🇦🇪 UAE
-                              if (country == 'AE' && number.length != 9) {
-                                return 'UAE number must be 9 digits';
-                              }
-
-                              /// ✅ Final check (library validation)
-                              if (!value.isValidNumber()) {
-                                return 'Enter valid number';
-                              }
-
-                              return null;
-                            },
-
-                            /// ✅ IMPORTANT (separate values correctly)
                             onChanged: (phone) {
-                              fullPhoneNumber = phone.completeNumber; // +91XXXXXXXXXX
-                              phoneNumber = phone.number; // 10 digit only
-                              countryCode = phone.countryCode; // +91
+
+                              /// +919876543210
+                              fullPhoneNumber = phone.completeNumber;
+
+                              /// 9876543210
+                              phoneNumber = phone.number;
+
+                              /// +91
+                              countryCode = phone.countryCode;
+
+                              print("Full: $fullPhoneNumber");
+                              print("Number: $phoneNumber");
+                              print("Code: $countryCode");
                             },
                           ),
                         ),

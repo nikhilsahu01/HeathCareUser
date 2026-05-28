@@ -63,7 +63,7 @@ class BottomNavControllerState extends State<BottomNavController> {
             topRight: Radius.circular(30),
           ),
           child: SizedBox(
-            height: screenHeight * 0.09, // responsive height
+            height: screenHeight * 0.109, // responsive height
             // height: screenHeight * 0.13, // responsive height
             child: BottomAppBar(
               shape: const CircularNotchedRectangle(),

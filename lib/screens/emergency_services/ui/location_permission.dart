@@ -1,10 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:geocoding/geocoding.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:health_care/core/utils/custom_widgets/custom_appBar.dart';
 import 'package:health_care/core/utils/custom_widgets/custom_app_button.dart';
 import 'package:health_care/core/utils/navigation_helper.dart';
 import 'package:health_care/core/utils/theams/color_resource.dart';
+import 'package:health_care/screens/emergency_services/ambulance_services/ambulance_provider/add_address_manually_provider.dart';
 import 'package:health_care/screens/emergency_services/model/add_address_manually_model.dart';
 import 'package:health_care/screens/emergency_services/ui/select_location.dart';
+import 'package:provider/provider.dart';
 
 import '../ambulance_services/view/emegency_form.dart';
 import '../accident_trauma/emegency_form_toroma.dart';
@@ -72,13 +76,90 @@ class _LocationPermissionScreenState extends State<LocationPermissionScreen> {
                 ),
                 ),
                 SizedBox(height: height * 0.02),
-                CustomAppButton(label: 'Get Current Location', onPressed: (){
-                  if(widget.trauma){
-                    navSlideFromRight(context, const EmergencyFormScreenTrauma(addressType:'Others' ,));
-                  } else {
-                    navSlideFromRight(context, const EmergencyFormScreen());//todo
-                  }
-                }),
+                CustomAppButton(label: 'Get Current Location',
+
+
+
+                    onPressed: () async {
+
+                      /// GPS ON HAI YA NAHI
+                      bool serviceEnabled =
+                      await Geolocator.isLocationServiceEnabled();
+
+                      if (!serviceEnabled) {
+                        return;
+                      }
+
+                      /// LOCATION PERMISSION
+                      LocationPermission permission =
+                      await Geolocator.checkPermission();
+
+                      if (permission == LocationPermission.denied) {
+
+                        permission =
+                        await Geolocator.requestPermission();
+                      }
+
+                      /// CURRENT LOCATION
+                      Position position =
+                      await Geolocator.getCurrentPosition(
+                        desiredAccuracy: LocationAccuracy.high,
+                      );
+
+                      /// ADDRESS CONVERT
+                      List<Placemark> placemarks =
+                      await placemarkFromCoordinates(
+                        position.latitude,
+                        position.longitude,
+                      );
+
+                      Placemark place = placemarks.first;
+
+                      String fullAddress =
+                          "${place.street}, "
+                          "${place.locality}, "
+                          "${place.postalCode}, "
+                          "${place.administrativeArea}, "
+                          "${place.country}";
+
+                      /// PROVIDER
+                      final pro = Provider.of<AddAddressManuallyProvider>(
+                        context,
+                        listen: false,
+                      );
+
+                      /// AUTO FILL
+                      pro.pickupController.text = fullAddress;
+
+                      /// SCREEN OPEN
+                      if(widget.trauma){
+
+                        navSlideFromRight(
+                          context,
+                          const EmergencyFormScreenTrauma(
+                            addressType: 'Others',
+                          ),
+                        );
+
+                      } else {
+
+                        navSlideFromRight(
+                          context,
+                          const EmergencyFormScreen(),
+                        );
+                      }
+                    },
+
+                //     onPressed: (){
+                //   if(widget.trauma){
+                //     navSlideFromRight(context, const EmergencyFormScreenTrauma(addressType:'Others' ,));
+                //   } else {
+                //     navSlideFromRight(context, const EmergencyFormScreen());//todo
+                //   }
+                // }
+
+
+                ),
                 SizedBox(height: height * 0.02),
                 CustomAppButton(label: 'Fill Location Manually',onPressed: (){
                   // if(widget.trauma){

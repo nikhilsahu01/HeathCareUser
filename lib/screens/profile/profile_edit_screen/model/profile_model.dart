@@ -24,6 +24,7 @@ class User {
   String? sId;
   String? name;
   String? mobileNo;
+  String? email;
   String? gender;
   String? profileImage;
   String? address;
@@ -46,6 +47,7 @@ class User {
     this.sId,
     this.name,
     this.mobileNo,
+    this.email,
     this.gender,
     this.profileImage,
     this.address,
@@ -69,6 +71,7 @@ class User {
     sId = json['_id'];
     name = json['name'];
     mobileNo = json['mobileNo'];
+    email = json['email'] ?? "";
     gender = json['gender'];
     profileImage = json['profileImage'];
     address = json['address'];
