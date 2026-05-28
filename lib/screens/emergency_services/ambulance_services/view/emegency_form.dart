@@ -182,10 +182,10 @@ class _EmergencyFormScreenState extends State<EmergencyFormScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                _buildTextField(pro.patientNameController, 'Enter Patient’s Name', isRequired: true),
+                _buildTextField(pro.patientNameController, 'Enter Patient’s Name', isRequired: false),
                 _buildTextField(pro.mobilenumberController, 'Mobile Number', isRequired: true),
                 _buildTextField(pro.pickupController, 'Pickup Location', isRequired: true),
-                _buildTextField(pro.dropController, 'Drop Location', isRequired: true),
+                _buildTextField(pro.dropController, 'Drop Location', isRequired: false),
                 if (bookingFor == 'bookingForLater') ...[
                   _buildDateField(pro.dateController, 'Date'),
                   const SizedBox(height: 20),

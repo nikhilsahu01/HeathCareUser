@@ -24,7 +24,7 @@ class ConsultantListViewModel extends ChangeNotifier {
     try {
       final model = await _repository.getConsultantListApi(categoryId, categoryType);
       _consultantListModel = model;
-      _allDoctors = model.data ?? [];
+      _allDoctors = model.data?.doctors ?? [];
       _filteredDoctors = _allDoctors; // Show all initially
     } catch (e) {
       debugPrint("❌ Error fetching doctors: $e");
