@@ -3,6 +3,7 @@ import 'package:health_care/core/utils/custom_widgets/custom_appBar.dart';
 import 'package:health_care/core/utils/custom_widgets/custom_image_view.dart';
 import 'package:health_care/core/utils/navigation_helper.dart';
 import 'package:health_care/screens/booking/ui/symptoms_list_screen.dart';
+import 'package:health_care/screens/emergency_services/ui/ambulance_number_screen.dart';
 import 'package:health_care/screens/emergency_services/widgets/confirmation_booking_dialog.dart';
 import 'package:health_care/screens/emergency_services/ui/location_permission.dart';
 
@@ -57,9 +58,12 @@ class EmergencyServicesScreen extends StatelessWidget {
                           builder: (_) => BookingConfirmationDialogue(
                             message: "Is this Accidental Trauma?",
                             onPressed: () {
-                              navPushReplace(context: context, page: LocationPermissionScreen(
-                                trauma: true,
-                              ));
+                               navPushReplace(context: context, page: AmbulanceNumberScreen()
+
+                              // LocationPermissionScreen(
+                              //   trauma: true,
+                              // )
+                              );
                             },
                           ),
                         );

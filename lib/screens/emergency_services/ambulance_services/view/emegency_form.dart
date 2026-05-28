@@ -175,81 +175,85 @@ class _EmergencyFormScreenState extends State<EmergencyFormScreen> {
     return Scaffold(
       backgroundColor: ColorResource.white,
       appBar: CustomAppBar(title: 'Emergency Form'),
-      body: Consumer<AddAddressManuallyProvider>(
-        builder: (context, pro, child) {
-          return Padding(
-            padding: EdgeInsets.symmetric(horizontal: width * 0.05),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                _buildTextField(pro.patientNameController, 'Enter Patient’s Name', isRequired: false),
-                _buildTextField(pro.mobilenumberController, 'Mobile Number', isRequired: true),
-                _buildTextField(pro.pickupController, 'Pickup Location', isRequired: true),
-                _buildTextField(pro.dropController, 'Drop Location', isRequired: false),
-                if (bookingFor == 'bookingForLater') ...[
-                  _buildDateField(pro.dateController, 'Date'),
-                  const SizedBox(height: 20),
-                  const Text('Set time',
-                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-                  const SizedBox(height: 10),
-                  Row(
-                    children: [
-                      _buildTimeDropdown(hours, pro.selectedHour, (val) {
-                        if (val != null) setState(() => pro.selectedHour = val);
-                      }),
-                      const Text(" : "),
-                      _buildTimeDropdown(minutes, pro.selectedMinute, (val) {
-                        if (val != null) setState(() => pro.selectedMinute = val);
-                      }),
-                      const SizedBox(width: 10),
-                      _buildTimeDropdown(['AM', 'PM'], pro.selectedPeriod, (val) {
-                        if (val != null) setState(() => pro.selectedPeriod = val);
-                      }),
+      body: SafeArea(
+        child: Consumer<AddAddressManuallyProvider>(
+          builder: (context, pro, child) {
+            return SingleChildScrollView(
+              child: Padding(
+                padding: EdgeInsets.symmetric(horizontal: width * 0.05),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _buildTextField(pro.patientNameController, 'Enter Patient’s Name', isRequired: false),
+                    _buildTextField(pro.mobilenumberController, 'Mobile Number', isRequired: true),
+                    _buildTextField(pro.pickupController, 'Pickup Location', isRequired: true),
+                    _buildTextField(pro.dropController, 'Drop Location', isRequired: false),
+                    if (bookingFor == 'bookingForLater') ...[
+                      _buildDateField(pro.dateController, 'Date'),
+                      const SizedBox(height: 20),
+                      const Text('Set time',
+                          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                      const SizedBox(height: 10),
+                      Row(
+                        children: [
+                          _buildTimeDropdown(hours, pro.selectedHour, (val) {
+                            if (val != null) setState(() => pro.selectedHour = val);
+                          }),
+                          const Text(" : "),
+                          _buildTimeDropdown(minutes, pro.selectedMinute, (val) {
+                            if (val != null) setState(() => pro.selectedMinute = val);
+                          }),
+                          const SizedBox(width: 10),
+                          _buildTimeDropdown(['AM', 'PM'], pro.selectedPeriod, (val) {
+                            if (val != null) setState(() => pro.selectedPeriod = val);
+                          }),
+                        ],
+                      ),
                     ],
-                  ),
-                ],
 
-                const Spacer(),
-                CustomAppButton(
-                  label: pro.isLoading ? 'Submitting...' : 'Submit',
-                  onPressed: pro.isLoading
-                      ? () {}
-                      : () async {
-                    if (pro.error == null) {
-                      if (pro.patientNameController.text.trim().isEmpty ||
-                          pro.mobilenumberController.text.trim().isEmpty ||
-                          pro.pickupController.text.trim().isEmpty ||
-                          pro.dropController.text.trim().isEmpty) {
-                        HelperMethods.showCustomSnackbar(
-                          context,
-                          message: "Please fill all mandatory fields",
-                        );
-                        return;
-                      }
+                    SizedBox(
+                      height: MediaQuery.heightOf(context) * 0.16,
+                    ),
+                    CustomAppButton(
+                      label: pro.isLoading ? 'Submitting...' : 'Submit',
+                      onPressed: pro.isLoading
+                          ? () {}
+                          : () async {
+                        if (pro.error == null) {
+                          if (pro.mobilenumberController.text.trim().isEmpty ||
+                              pro.pickupController.text.trim().isEmpty) {
+                            HelperMethods.showCustomSnackbar(
+                              context,
+                              message: "Please fill mobile Number fields",
+                            );
+                            return;
+                          }
 
-                      showDialog(
-                        context: context,
-                        builder: (_) => BookingConfirmationDialogue(
-                          message:
-                          "An Ambulance will be booked right away. Are you Sure?",
-                          onPressed: () async {
-                            await pro.getCurrentLocation();
-                            await pro.addNewAddress(context: context);
-                          },
-                        ),
-                      );
-                    } else {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text("Error: ${pro.error}")),
-                      );
-                    }
-                  },
+                          showDialog(
+                            context: context,
+                            builder: (_) => BookingConfirmationDialogue(
+                              message:
+                              "An Ambulance will be booked right away. Are you Sure?",
+                              onPressed: () async {
+                                await pro.getCurrentLocation();
+                                await pro.addNewAddress(context: context);
+                              },
+                            ),
+                          );
+                        } else {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text("Error: ${pro.error}")),
+                          );
+                        }
+                      },
+                    ),
+                    const SizedBox(height: 20),
+                  ],
                 ),
-                const SizedBox(height: 20),
-              ],
-            ),
-          );
-        },
+              ),
+            );
+          },
+        ),
       ),
     );
   }
