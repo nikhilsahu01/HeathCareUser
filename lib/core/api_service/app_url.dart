@@ -4,6 +4,7 @@ class AppUrl {
   // //live
   //static const String baseUrl = 'https://94np5jjf-5003.inc1.devtunnels.ms';
   static const String baseUrl = 'https://admin.olcure.com';
+  // static const String baseUrl = 'http://192.168.1.22:9003';
   static const String apiKey = 'AIzaSyCSk_LBk7QP0k4YUfX61t_QF8ItPuZzsoc';
   static const String getOtp = '$baseUrl/api/user/auth/send-otp';
   static const String verifyOtp = '$baseUrl/api/user/auth/verify-otp';
@@ -15,6 +16,8 @@ class AppUrl {
   static const String getDoctorDetails= '$baseUrl/api/user/appointment/doctorDetail';
   static const String reminderSlots = '$baseUrl/api/user/appointment/reminderSlots';
   static const String availableSlots = '$baseUrl/api/user/appointment/slots';
+  static const String initiatePayment = '$baseUrl/api/user/payment/initiate';
+  static const String confirmPayment = '$baseUrl/api/user/payment/confirm';
   static const String patientsList = '$baseUrl/api/user/userPateint/list';
   static const String createPatients = '$baseUrl/api/user/userPateint/create';
   static const String deletePatients = '$baseUrl/api/user/userPateint/delete';
@@ -24,6 +27,8 @@ class AppUrl {
   static const String rescheduleAppointment = '$baseUrl/api/user/bookAppointment/reschedule';
   static const String cancelAppointment = '$baseUrl/api/user/bookAppointment/cancel';
   static const String createReviews = '$baseUrl/api/user/ratingReview/create';
+  static const String appRating = '$baseUrl/api/user/ratingReview/app';
+  static const String helpCenter = '$baseUrl/api/user/helpCenter/list';
   static const String updateReminder = '$baseUrl/api/user/bookedAppointment/updateReminder';
   static const String getAllSymptoms = '$baseUrl/api/user/home/getAllSymptoms';
   static const String videoCall = '$baseUrl/api/join-call';
@@ -31,6 +36,9 @@ class AppUrl {
   static const String traumaCreate = '$baseUrl/api/user/traumaBooking/create';
   static const String cmsData = '$baseUrl/api/user/cmsData/list';
   static const String search = '$baseUrl/api/user/search';
+  static const String uploadHealthRecord = '$baseUrl/api/user/healthRecord/upload';
+  static const String getHealthRecords = '$baseUrl/api/user/healthRecord';
+  static const String getNotificationsList = '$baseUrl/api/user/notifications/list';
 
 
   //pradeep

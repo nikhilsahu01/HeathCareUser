@@ -58,8 +58,18 @@ class _ConsultantDetailsScreenState extends State<ConsultantDetailsScreen> {
         builder: (context, provider, _) {
           final consultant = provider.consultant;
 
-          if (provider.isLoading || consultant == null) {
+          if (provider.isLoading) {
             return const Center(child: ThreeDotsLoader());
+          }
+          if (consultant == null) {
+            return Center(
+              child: CustomText(
+                text: "Failed to load consultant details.\nPlease try again later.",
+                fontSize: 16,
+                color: Colors.redAccent,
+                textAlign: TextAlign.center,
+              ),
+            );
           }
 
           return SingleChildScrollView(

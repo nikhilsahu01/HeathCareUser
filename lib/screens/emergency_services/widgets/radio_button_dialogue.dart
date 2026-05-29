@@ -10,11 +10,12 @@ import '../ui/location_permission.dart';
 class BookingDialog extends StatefulWidget {
   // final VoidCallback onContinue;
   final String bookingFor;
-
+  final bool isTrauma;
 
   const BookingDialog({super.key,
     // required this.onContinue
-    required this.bookingFor
+    required this.bookingFor,
+    this.isTrauma = false,
   });
 
   @override
@@ -82,7 +83,7 @@ class _BookingDialogState extends State<BookingDialog> {
                   bookingFor = widget.bookingFor;
                 });
                 navPushReplace(context: context, page: LocationPermissionScreen(
-                  trauma: false,
+                  trauma: widget.isTrauma,
                 ));
                 // widget.onContinue();
               },

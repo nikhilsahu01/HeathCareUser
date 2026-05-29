@@ -35,79 +35,90 @@ class _OBScreenState extends State<OBScreen> {
     return Scaffold(
       backgroundColor: Colors.white,
       body: SafeArea(
-        child: Column(
-          children: [
-            SizedBox(height: screenHeight * 0.2),
-            SizedBox(
-              height: screenHeight * 0.45,
-              child: PageView.builder(
-                controller: _pageController,
-                itemCount: _stickers.length,
-                onPageChanged: (index) {
-                  setState(() {
-                    _currentIndex = index;
-                  });
-                },
-                itemBuilder: (context, index) {
-                  return Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: CustomImageView(
-                      imagePath: _stickers[index],
-                      fit: BoxFit.contain,
-                      height: screenHeight * 0.4,
-                    ),
-                  );
-                },
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 24),
-              child: Text(
-                _texts[_currentIndex],
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: screenWidth * 0.05,
-                  fontWeight: FontWeight.w600,
-                  color: Colors.black,
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            return SingleChildScrollView(
+              child: ConstrainedBox(
+                constraints: BoxConstraints(minHeight: constraints.maxHeight),
+                child: IntrinsicHeight(
+                  child: Column(
+                    children: [
+                      SizedBox(height: screenHeight * 0.1),
+                      SizedBox(
+                        height: screenHeight * 0.45,
+                        child: PageView.builder(
+                          controller: _pageController,
+                          itemCount: _stickers.length,
+                          onPageChanged: (index) {
+                            setState(() {
+                              _currentIndex = index;
+                            });
+                          },
+                          itemBuilder: (context, index) {
+                            return Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: CustomImageView(
+                                imagePath: _stickers[index],
+                                fit: BoxFit.contain,
+                                height: screenHeight * 0.4,
+                              ),
+                            );
+                          },
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 24),
+                        child: Text(
+                          _texts[_currentIndex],
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            fontSize: screenWidth * 0.05,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.black,
+                          ),
+                        ),
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: List.generate(_stickers.length, (index) {
+                          final isActive = _currentIndex == index;
+                          return AnimatedContainer(
+                            duration: const Duration(milliseconds: 300),
+                            margin: const EdgeInsets.symmetric(horizontal: 4),
+                            height: 8,
+                            width: isActive ? 18 : 8,
+                            decoration: BoxDecoration(
+                              color: isActive ? ColorResource.primaryBlue : Colors.grey.shade300,
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                          );
+                        }),
+                      ),
+                      const Spacer(),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 30),
+                        child: CustomAppButton(
+                          label: _currentIndex == _stickers.length - 1 ? 'Get Started' : 'Next',
+                          onPressed: () {
+                            if (_currentIndex == _stickers.length - 1) {
+                              navSlideFromRight(context, const LoginScreen());
+                            } else {
+                              _pageController.animateToPage(
+                                _currentIndex + 1,
+                                duration: const Duration(milliseconds: 300),
+                                curve: Curves.easeInOut,
+                              );
+                            }
+                          },
+                          color: ColorResource.primaryBlue,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: List.generate(_stickers.length, (index) {
-                final isActive = _currentIndex == index;
-                return AnimatedContainer(
-                  duration: const Duration(milliseconds: 300),
-                  margin: const EdgeInsets.symmetric(horizontal: 4),
-                  height: 8,
-                  width: isActive ? 18 : 8,
-                  decoration: BoxDecoration(
-                    color: isActive ? ColorResource.primaryBlue : Colors.grey.shade300,
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                );
-              }),
-            ),
-            const Spacer(),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 30),
-              child: CustomAppButton(
-                label: _currentIndex == _stickers.length - 1 ? 'Get Started' : 'Next',
-                onPressed: () {
-                  if (_currentIndex == _stickers.length - 1) {
-                    navSlideFromRight(context, LoginScreen());
-                  } else {
-                    _pageController.animateToPage(
-                      _currentIndex + 1,
-                      duration: const Duration(milliseconds: 300),
-                      curve: Curves.easeInOut,
-                    );
-                  }
-                },
-                color: ColorResource.primaryBlue,
-              ),
-            ),
-          ],
+            );
+          },
         ),
       ),
     );

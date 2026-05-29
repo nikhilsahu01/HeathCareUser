@@ -49,9 +49,9 @@ class AvailableSlotsModel {
   AvailableSlotsModel.fromJson(Map<String, dynamic> json) {
     status = json['success'];
     message = json['message'];
-    if (json['data'] != null) {
+    if (json['data'] != null && json['data']['slots'] != null) {
       data = <AvailableSlotsData>[];
-      json['data'].forEach((v) {
+      json['data']['slots'].forEach((v) {
         data!.add(new AvailableSlotsData.fromJson(v));
       });
     }

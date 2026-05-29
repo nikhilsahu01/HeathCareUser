@@ -8,7 +8,9 @@ import '../../../core/utils/custom_widgets/custom_refresh.dart';
 import '../../../core/utils/custom_widgets/custom_text.dart';
 import '../../../core/utils/custom_widgets/custom_threeDots_indecator.dart';
 import '../../after_care/view/after_care_screen.dart';
+import '../../after_care/viewmodel/aftercare_viewmodel.dart';
 import '../../appointments/view/appointments_Screen.dart';
+import '../../appointments/viewModel/appointments_viewModel.dart';
 import '../../booking/ui/booking_type.dart';
 import '../../booking/ui/symptoms_list_screen.dart';
 import '../../emergency_services/ui/emergency_services.dart';
@@ -19,6 +21,13 @@ import '../widgets/circularButtonsRow.dart';
 import '../widgets/healthIssues_widgets.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import '../widgets/health_problems_widget.dart';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
+import '../../../core/api_service/app_url.dart';
+import '../../../core/utils/helper_functions/helpers_methods.dart';
+import '../../VideoCall/agoraVideoCall.dart';
+import 'dart:async';
+import 'package:intl/intl.dart';
 //
 // class HomeScreen extends StatefulWidget {
 //   const HomeScreen({super.key});
@@ -28,7 +37,6 @@ import '../widgets/health_problems_widget.dart';
 // }
 //
 // class _HomeScreenState extends State<HomeScreen> {
-//
 //   @override
 //   void initState() {
 //     super.initState();
@@ -483,6 +491,9 @@ class _HomeScreenState extends State<HomeScreen> {
   ];
 
   int currentIndex = 0;
+  Timer? _appointmentTimer;
+  Set<String> _alertedAppointments = {};
+  dynamic _activeAppointment;
 
   @override
   void initState() {
@@ -490,7 +501,120 @@ class _HomeScreenState extends State<HomeScreen> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       Provider.of<HomeViewModel>(context, listen: false).fetchHomeData();
       Provider.of<AddressViewModel>(context, listen: false).fetchAddresses();
+      Provider.of<AppointmentViewModel>(context, listen: false).fetchUpcomingAppointments();
+      Provider.of<AftercareViewModel>(context, listen: false).fetchMedicines();
     });
+    _startAppointmentTimer();
+  }
+
+  @override
+  void dispose() {
+    _appointmentTimer?.cancel();
+    super.dispose();
+  }
+
+  void _startAppointmentTimer() {
+    _appointmentTimer = Timer.periodic(const Duration(seconds: 15), (timer) {
+      if (!mounted) return;
+      final aptVm = Provider.of<AppointmentViewModel>(context, listen: false);
+      final upcoming = aptVm.upcomingAppointments;
+      if (upcoming.isEmpty) {
+        if (_activeAppointment != null) setState(() => _activeAppointment = null);
+        return;
+      }
+
+      final now = DateTime.now();
+      bool foundActive = false;
+
+      for (var apt in upcoming) {
+        if (apt.appointmentDate != null && apt.timeSlot != null) {
+          try {
+            // Parse "2026-05-30" or similar date format and "10:30 AM"
+            String dateStr = apt.appointmentDate!;
+            // TimeSlot might be like "10:00 AM - 11:00 AM", we take the first part
+            String timeStr = apt.timeSlot!.split('-')[0].trim();
+            DateTime aptTime = DateFormat("yyyy-MM-dd h:mm a").parse("$dateStr $timeStr");
+
+            final diff = now.difference(aptTime).inMinutes;
+
+            // If within -5 to +15 minutes of appointment
+            if (diff >= -5 && diff <= 15) {
+              foundActive = true;
+              if (_activeAppointment != apt) {
+                setState(() => _activeAppointment = apt);
+              }
+
+              // Show popup if not alerted yet
+              if (!_alertedAppointments.contains(apt.sId)) {
+                _alertedAppointments.add(apt.sId!);
+                _showJoinPopup(apt);
+              }
+              break; // Handle one active appointment at a time
+            }
+          } catch (e) {
+            debugPrint("Error parsing appointment time: $e");
+          }
+        }
+      }
+
+      if (!foundActive && _activeAppointment != null) {
+        setState(() => _activeAppointment = null);
+      }
+    });
+  }
+
+  void _showJoinPopup(dynamic apt) {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (ctx) {
+        return AlertDialog(
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          title: Row(
+            children: [
+              Icon(Icons.video_call, color: ColorResource.primaryBlue, size: 28),
+              SizedBox(width: 10),
+              Text('Appointment Ready!'),
+            ],
+          ),
+          content: Text("Dr. ${apt.vendor?.name ?? 'Your Doctor'} is waiting for you to join the call."),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(ctx),
+              child: Text("Later", style: TextStyle(color: Colors.grey)),
+            ),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
+              onPressed: () async {
+                Navigator.pop(ctx);
+                final appointmentId = apt.sId ?? '';
+                try {
+                  final response = await http.get(Uri.parse('${AppUrl.videoCall}/$appointmentId/0'));
+                  if (response.statusCode == 200) {
+                    final json = jsonDecode(response.body);
+                    final token = json['data']['token'] ?? '';
+                    final channel = json['data']['channelName'] ?? appointmentId;
+                    if (token.isNotEmpty) {
+                      navSlideFromRight(context, AgoraVideoCallScreen(
+                        channelName: channel,
+                        token: token,
+                        uid: 0,
+                        appointmentId: appointmentId,
+                      ));
+                    }
+                  } else {
+                     HelperMethods.showFloatingToast(context, message: 'Failed to join call');
+                  }
+                } catch (e) {
+                   HelperMethods.showFloatingToast(context, message: 'Error joining call');
+                }
+              },
+              child: Text("Join Now", style: TextStyle(color: Colors.white)),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   @override
@@ -529,6 +653,62 @@ class _HomeScreenState extends State<HomeScreen> {
 
                 const SizedBox(height: 15),
                 FindDoctorCategoriesWidget(categories: homeData?.data?.categories ?? []),
+
+                if (_activeAppointment != null) ...[
+                  const SizedBox(height: 15),
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: Colors.red.shade50,
+                      border: Border.all(color: Colors.red.shade200),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Column(
+                      children: [
+                        Row(
+                          children: [
+                            Icon(Icons.warning_amber_rounded, color: Colors.red),
+                            const SizedBox(width: 10),
+                            Expanded(child: Text("You have an active appointment right now!", style: TextStyle(fontWeight: FontWeight.bold, color: Colors.red.shade700))),
+                          ],
+                        ),
+                        const SizedBox(height: 10),
+                        ElevatedButton.icon(
+                          icon: Icon(Icons.videocam, color: Colors.white),
+                          label: Text("Join Call with Dr. ${_activeAppointment.vendor?.name ?? ''}", style: TextStyle(color: Colors.white)),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.green,
+                            minimumSize: Size(double.infinity, 45),
+                          ),
+                          onPressed: () async {
+                            final appointmentId = _activeAppointment!.sId ?? '';
+                            try {
+                              final response = await http.get(Uri.parse('${AppUrl.videoCall}/$appointmentId/0'));
+                              if (response.statusCode == 200) {
+                                final json = jsonDecode(response.body);
+                                final token = json['data']['token'] ?? '';
+                                final channel = json['data']['channelName'] ?? appointmentId;
+                                if (token.isNotEmpty) {
+                                  navSlideFromRight(context, AgoraVideoCallScreen(
+                                    channelName: channel,
+                                    token: token,
+                                    uid: 0,
+                                    appointmentId: appointmentId,
+                                  ));
+                                }
+                              } else {
+                                HelperMethods.showFloatingToast(context, message: 'Failed to join call');
+                              }
+                            } catch (e) {
+                              HelperMethods.showFloatingToast(context, message: 'Error joining call');
+                            }
+                          },
+                        )
+                      ],
+                    ),
+                  ),
+                ],
 
                 // SizedBox(
                 //   height: 110,
@@ -617,7 +797,15 @@ class _HomeScreenState extends State<HomeScreen> {
                 // const SizedBox(height: 15),
 
                 /// DOCTOR APPOINTMENT CARD
-                _appointmentCard(),
+                Consumer<AppointmentViewModel>(
+                  builder: (context, appointmentVm, child) {
+                    if (appointmentVm.isLoadingUpcoming || appointmentVm.upcomingAppointments.isEmpty) {
+                      return const SizedBox();
+                    }
+                    final latestAppt = appointmentVm.upcomingAppointments.first;
+                    return _appointmentCard(context, latestAppt);
+                  },
+                ),
 
                 const SizedBox(height: 20),
                 //to megha ne jo image hai waisa banai thi and sir ne bole ki shi nhi funcanality same rahega ui acche se banao ok to dono mohtrma ne mil kar e banaya hai
@@ -704,22 +892,89 @@ class _HomeScreenState extends State<HomeScreen> {
 
                 const SizedBox(height: 15),
 
-                /// DAILY DOSE
-                const CustomText(
-                  text: "Daily Dose Reminder",
-                  fontSize: 18,
-                  fontWeight: FontWeight.w600,
+                Consumer<AftercareViewModel>(
+                  builder: (context, aftercareVm, child) {
+                    final pendingMedicines = aftercareVm.medicines.where((m) => m.isTaken != true).toList();
+                    if (pendingMedicines.isEmpty) return const SizedBox.shrink();
+
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 4.0),
+                          child: CustomText(
+                            text: 'Daily Dose Reminder',
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        const SizedBox(height: 10),
+                        SizedBox(
+                          height: 120,
+                          child: ListView.builder(
+                            scrollDirection: Axis.horizontal,
+                            itemCount: pendingMedicines.length,
+                            itemBuilder: (context, index) {
+                              final med = pendingMedicines[index];
+                              return Container(
+                                width: 280,
+                                margin: const EdgeInsets.only(right: 15),
+                                padding: const EdgeInsets.all(12),
+                                decoration: BoxDecoration(
+                                  color: ColorResource.white,
+                                  border: Border.all(color: Colors.blue.shade100),
+                                  borderRadius: BorderRadius.circular(16),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.blue.withOpacity(0.05),
+                                      blurRadius: 10,
+                                      offset: const Offset(0, 5),
+                                    )
+                                  ]
+                                ),
+                                child: Row(
+                                  children: [
+                                    Container(
+                                      padding: const EdgeInsets.all(10),
+                                      decoration: BoxDecoration(
+                                        color: ColorResource.primaryBlue.withOpacity(0.1),
+                                        shape: BoxShape.circle,
+                                      ),
+                                      child: const Icon(Icons.medication, color: ColorResource.primaryBlue),
+                                    ),
+                                    const SizedBox(width: 12),
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        mainAxisAlignment: MainAxisAlignment.center,
+                                        children: [
+                                          CustomText(text: med.medicineName ?? "Medicine", fontSize: 14, fontWeight: FontWeight.bold),
+                                          CustomText(text: "${med.dosage ?? '1'} • ${med.timing ?? ''}", fontSize: 12, color: Colors.grey),
+                                        ],
+                                      ),
+                                    ),
+                                    ElevatedButton(
+                                      onPressed: () {
+                                        aftercareVm.toggleMedicineStatus(med.id!, true);
+                                      },
+                                      style: ElevatedButton.styleFrom(
+                                        backgroundColor: ColorResource.primaryBlue,
+                                        minimumSize: const Size(60, 30),
+                                        padding: const EdgeInsets.symmetric(horizontal: 10),
+                                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20))
+                                      ),
+                                      child: const Text('Take', style: TextStyle(color: Colors.white, fontSize: 12)),
+                                    )
+                                  ],
+                                ),
+                              );
+                            },
+                          ),
+                        ),
+                      ],
+                    );
+                  },
                 ),
-
-                const SizedBox(height: 15),
-
-                _medicineCard(),
-
-                // const SizedBox(height: 40),
-                //
-                // /// DYNAMIC API DATA
-                // FindDoctorCategoriesWidget(
-                //     categories: homeData?.data?.categories ?? []),
 
                 const SizedBox(height: 20),
 
@@ -843,7 +1098,15 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   /// APPOINTMENT CARD
-  Widget _appointmentCard() {
+  Widget _appointmentCard(BuildContext context, dynamic appt) {
+    String docName = appt.vendor?.name ?? "Doctor";
+    String docImage = appt.vendor?.profileImage ?? "https://images.unsplash.com/photo-1607746882042-944635dfe10e";
+    String catName = appt.category?.name ?? "Specialist";
+    String dateStr = appt.appointmentDate ?? "";
+    String timeStr = appt.timeSlot ?? "";
+    
+    // Quick parse for better display if you have a date helper, or just show raw date
+    if (dateStr.length > 10) dateStr = dateStr.substring(0, 10);
 
     return Container(
       padding: const EdgeInsets.all(16),
@@ -851,67 +1114,92 @@ class _HomeScreenState extends State<HomeScreen> {
         gradient: LinearGradient(
           colors: [
             Color(0xff082855),
-       // Color(0xff2458a4),
-       Color(0xff2c6cc9),
-            //ColorResource.primaryBlue,
-        //  ColorResource.primaryBlue.withOpacity(.7)
+            Color(0xff2c6cc9),
           ],
         ),
         borderRadius: BorderRadius.circular(18),
       ),
-
       child: Column(
         children: [
-
           Row(
             children: [
-
-              const CircleAvatar(
+              CircleAvatar(
                 radius: 26,
-                backgroundImage: NetworkImage(
-                    "https://images.unsplash.com/photo-1607746882042-944635dfe10e"),
+                backgroundImage: NetworkImage(docImage.isNotEmpty ? docImage : "https://images.unsplash.com/photo-1607746882042-944635dfe10e"),
+                backgroundColor: Colors.grey.shade300,
               ),
-
               const SizedBox(width: 12),
-
-              const Expanded(
+              Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-
                     Text(
-                      "Dr. Leena Bhusan",
+                      docName,
                       style: TextStyle(
                           color: Colors.white,
                           fontWeight: FontWeight.bold),
                     ),
-
                     Text(
-                      "Dermatologist",
+                      catName,
                       style: TextStyle(color: Colors.white70),
                     ),
                   ],
                 ),
               ),
+              InkWell(
+                  onTap: () async {
+                    final appointmentId = appt.sId ?? '';
+                    int? _remoteUid;
+                    final uid = 1234; // could be any unique int per user
+                    final response = await http.get(Uri.parse(
+                      '${AppUrl.videoCall}/$appointmentId/$uid'
+                    ));
 
-              Container(
-                padding: EdgeInsets.all(8),
-                
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(100),
-                  color: Colors.white24,
+                    if (response.statusCode == 200) {
+                      final json = jsonDecode(response.body);
+                      final token = json['data']['token'] ?? '';
+                      final channel = json['data']['channelName'] ?? appointmentId;
+                      if (token.isEmpty) {
+                        HelperMethods.showFloatingToast(
+                          context,
+                          message: "Unable to join. Token not generated. Try again later.",
+                        );
+                        return;
+                      }
+
+                      navSlideFromRight(
+                        context,
+                        AgoraVideoCallScreen(
+                          channelName: channel,
+                          token: token,
+                          uid: uid,
+                          appointmentId: appointmentId,
+                        ),
+                      );
+                    } else if (response.statusCode == 400) {
+                      HelperMethods.showFloatingToast(context, message: "Call has already ended.");
+                    } else {
+                      HelperMethods.showFloatingToast(context, message: 'Failed to join call');
+                    }
+                  },
+                borderRadius: BorderRadius.circular(40),
+                child: Container(
+                  decoration: const BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: Colors.white24,
+                  ),
+                  padding: const EdgeInsets.all(8),
+                  child: const Icon(Icons.videocam_rounded, color: Colors.white),
                 ),
-                  child: const Icon(Icons.call, color: Colors.white))
+              )
             ],
           ),
-
           const SizedBox(height: 15),
-
           Row(
             children: [
-              _timeChip("Tue, 6 May", Icons.calendar_today),
+              _timeChip(dateStr, Icons.calendar_today),
               const SizedBox(width: 10),
-              _timeChip("10:30 AM", Icons.access_time),
+              _timeChip(timeStr, Icons.access_time),
             ],
           )
         ],
@@ -986,52 +1274,4 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  /// MEDICINE CARD
-  Widget _medicineCard() {
-
-    return Container(
-      padding: const EdgeInsets.all(14),
-
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(14),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black12,
-            blurRadius: 6,
-          )
-        ],
-      ),
-
-      child: const Row(
-        children: [
-
-          CircleAvatar(
-            backgroundColor: ColorResource.primaryBlue,
-            child: Icon(Icons.medication,color: Colors.white,),
-          ),
-
-          SizedBox(width: 12),
-
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-
-                Text("Multivitamin",
-                    style: TextStyle(fontWeight: FontWeight.bold)),
-
-                Text("After Lunch"),
-              ],
-            ),
-          ),
-
-          Text("1\nTablet",
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                  fontWeight: FontWeight.bold)),
-        ],
-      ),
-    );
-  }
 }

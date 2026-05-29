@@ -24,6 +24,10 @@ import 'package:health_care/screens/profile/view/viewmodel/cms_viewmodel.dart';
 import 'package:health_care/screens/splash/splash_screen.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:health_care/screens/services/my_health_record/viewmodel/health_record_viewmodel.dart';
+import 'package:health_care/screens/rating/viewmodel/rating_viewmodel.dart';
+import 'package:health_care/screens/help_Center/viewmodel/help_center_viewmodel.dart';
+import 'package:health_care/screens/after_care/viewmodel/aftercare_viewmodel.dart';
 import 'core/coreServices/fireBase_services.dart';
 import 'core/coreServices/socket_service/join_call_provider.dart';
 import 'core/coreServices/socket_service/socket_service.dart';
@@ -80,6 +84,10 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => ConsultantViewModel()),
         ChangeNotifierProvider(create: (_) => BookingSlotViewModel()),
         ChangeNotifierProvider(create: (_) => PatientsViewModel()),
+        ChangeNotifierProvider(create: (_) => HealthRecordViewModel()),
+        ChangeNotifierProvider(create: (_) => RatingReviewViewModel()),
+        ChangeNotifierProvider(create: (_) => HelpCenterViewModel()),
+        ChangeNotifierProvider(create: (_) => AftercareViewModel()),
         ChangeNotifierProvider(create: (_) => AppointmentDetailsViewModel()),
         ChangeNotifierProvider(create: (_) => NotificationProvider()),
         ChangeNotifierProvider(create: (_) => AppointmentViewModel()),

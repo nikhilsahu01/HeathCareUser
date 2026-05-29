@@ -136,6 +136,7 @@ class BookingRepository {
     required String categoryId,
     required List<String> reminders,
     String notes = "",
+    String? paymentId,
   }) async {
     final body = {
       "patientId": patientId,
@@ -147,6 +148,7 @@ class BookingRepository {
       "type": type,
       "notes": notes,
       "category": categoryId,
+      if (paymentId != null) "paymentId": paymentId,
     };
 
     try {
@@ -154,6 +156,44 @@ class BookingRepository {
         body,
         AppUrl.createBooking,
       );
+      return response['success'] == true;
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<Map<String, dynamic>> initiatePayment({
+    required String vendorId,
+    required String type,
+    String? patientId,
+    String? inviteDoctorId,
+  }) async {
+    final body = {
+      "vendorId": vendorId,
+      "type": type,
+      "patientId": patientId,
+      if (inviteDoctorId != null) "inviteDoctorId": inviteDoctorId,
+    };
+
+    try {
+      final response = await _apiService.postApiWithToken(body, AppUrl.initiatePayment);
+      return response;
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<bool> confirmPayment({
+    required String paymentId,
+    required String transactionId,
+  }) async {
+    final body = {
+      "paymentId": paymentId,
+      "transactionId": transactionId,
+    };
+
+    try {
+      final response = await _apiService.postApiWithToken(body, AppUrl.confirmPayment);
       return response['success'] == true;
     } catch (e) {
       rethrow;

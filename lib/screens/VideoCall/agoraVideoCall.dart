@@ -8,6 +8,7 @@ import 'package:provider/provider.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
 
 import '../../core/coreServices/socket_service/join_call_provider.dart';
+import '../../core/coreServices/socket_service/socket_service.dart';
 import '../../core/utils/global_variables.dart';
 
 
@@ -38,6 +39,11 @@ class _AgoraVideoCallScreenState extends State<AgoraVideoCallScreen> {
   bool _muted = false;
   bool _cameraSwitched = false;
   bool _hasEndedCall = false;
+  
+  // Chat related
+  final List<Map<String, dynamic>> _messages = [];
+  final TextEditingController _chatController = TextEditingController();
+  bool _hasUnreadMessages = false;
 
   static const String appId = 'a564b76eeb0c4f8cbd1216e06d446ffc';
 
@@ -46,6 +52,18 @@ class _AgoraVideoCallScreenState extends State<AgoraVideoCallScreen> {
     super.initState();
     _initAgora();
     WakelockPlus.enable();
+    
+    // Listen to chat messages
+    SocketService().on("receive-message", (data) {
+      if (!mounted) return;
+      if (data['appointmentId'] == widget.appointmentId) {
+        setState(() {
+          _messages.add(data);
+          // If the bottom sheet is not open, show a badge (optional, but good UX)
+          _hasUnreadMessages = true;
+        });
+      }
+    });
   }
 
 
@@ -137,9 +155,11 @@ class _AgoraVideoCallScreenState extends State<AgoraVideoCallScreen> {
   @override
   void dispose() {
     context.read<JoinCallNotifier>().removeListener(_checkCanJoinStatus);
+    SocketService().off("receive-message");
     _engine.leaveChannel();
     _engine.release();
     WakelockPlus.disable();
+    _chatController.dispose();
     super.dispose();
   }
   Widget _buildVideos() {
@@ -241,6 +261,41 @@ class _AgoraVideoCallScreenState extends State<AgoraVideoCallScreen> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
+          // Chat button
+          Stack(
+            clipBehavior: Clip.none,
+            children: [
+              RawMaterialButton(
+                onPressed: _openChatSheet,
+                shape: const CircleBorder(),
+                elevation: 2.0,
+                fillColor: Colors.white,
+                padding: const EdgeInsets.all(12.0),
+                child: const Icon(
+                  Icons.chat,
+                  color: ColorResource.primaryBlue,
+                  size: 20.0,
+                ),
+              ),
+              if (_hasUnreadMessages)
+                Positioned(
+                  right: 4,
+                  top: 4,
+                  child: Container(
+                    padding: const EdgeInsets.all(4),
+                    decoration: const BoxDecoration(
+                      color: Colors.red,
+                      shape: BoxShape.circle,
+                    ),
+                    constraints: const BoxConstraints(
+                      minWidth: 12,
+                      minHeight: 12,
+                    ),
+                  ),
+                ),
+            ],
+          ),
+          const SizedBox(width: 8),
           // Mute button
           RawMaterialButton(
             onPressed: () {
@@ -289,16 +344,128 @@ class _AgoraVideoCallScreenState extends State<AgoraVideoCallScreen> {
             elevation: 2.0,
             fillColor: ColorResource.primaryBlue,
             padding: const EdgeInsets.all(12.0),
-            child: Icon(
-              _cameraSwitched
-                  ? Icons.camera_rear
-                  : Icons.camera_front,
+            child: const Icon(
+              Icons.flip_camera_ios,
               color: Colors.white,
               size: 20.0,
             ),
           ),
         ],
       ),
+    );
+  }
+
+  void _openChatSheet() {
+    setState(() => _hasUnreadMessages = false);
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) {
+        return StatefulBuilder(builder: (context, setSheetState) {
+          return Padding(
+            padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
+            child: Container(
+              height: MediaQuery.of(context).size.height * 0.6,
+              decoration: const BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+              ),
+              child: Column(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(16),
+                    decoration: const BoxDecoration(
+                      border: Border(bottom: BorderSide(color: Colors.grey, width: 0.2)),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        const Text("Chat with Doctor", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                        IconButton(icon: const Icon(Icons.close), onPressed: () => Navigator.pop(context)),
+                      ],
+                    ),
+                  ),
+                  Expanded(
+                    child: ListView.builder(
+                      padding: const EdgeInsets.all(16),
+                      itemCount: _messages.length,
+                      itemBuilder: (context, index) {
+                        final msg = _messages[index];
+                        final isMe = msg['senderModel'] == 'User';
+                        return Align(
+                          alignment: isMe ? Alignment.centerRight : Alignment.centerLeft,
+                          child: Container(
+                            margin: const EdgeInsets.symmetric(vertical: 4),
+                            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                            decoration: BoxDecoration(
+                              color: isMe ? ColorResource.primaryBlue : Colors.grey.shade200,
+                              borderRadius: BorderRadius.only(
+                                topLeft: const Radius.circular(16),
+                                topRight: const Radius.circular(16),
+                                bottomLeft: isMe ? const Radius.circular(16) : Radius.zero,
+                                bottomRight: isMe ? Radius.zero : const Radius.circular(16),
+                              ),
+                            ),
+                            child: Text(
+                              msg['message'],
+                              style: TextStyle(color: isMe ? Colors.white : Colors.black87),
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: TextField(
+                            controller: _chatController,
+                            decoration: InputDecoration(
+                              hintText: "Type a message...",
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(24),
+                                borderSide: BorderSide.none,
+                              ),
+                              filled: true,
+                              fillColor: Colors.grey.shade100,
+                              contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        CircleAvatar(
+                          backgroundColor: ColorResource.primaryBlue,
+                          child: IconButton(
+                            icon: const Icon(Icons.send, color: Colors.white, size: 20),
+                            onPressed: () {
+                              if (_chatController.text.trim().isNotEmpty) {
+                                final text = _chatController.text.trim();
+                                _chatController.clear();
+                                SocketService().emit("send-message", {
+                                  "appointmentId": widget.appointmentId,
+                                  "message": text,
+                                  "senderModel": "User"
+                                });
+                                // Local echo isn't strictly necessary since socket broadcasts to room
+                                // But if we want instant UI:
+                                // setState(() { _messages.add({'message': text, 'senderModel': 'User'}); });
+                                // setSheetState((){});
+                              }
+                            },
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          );
+        });
+      },
     );
   }
 

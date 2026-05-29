@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
+import 'package:provider/provider.dart';
 import 'package:health_care/core/utils/custom_widgets/custom_appBar.dart';
 import 'package:health_care/core/utils/custom_widgets/custom_app_button.dart';
+import '../viewmodel/rating_viewmodel.dart';
 
 class ReviewScreen extends StatefulWidget {
   const ReviewScreen({super.key});
@@ -16,27 +18,27 @@ class _ReviewScreenState extends State<ReviewScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final vm = Provider.of<RatingReviewViewModel>(context);
+
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: CustomAppBar(title: "Review"),
+      appBar: CustomAppBar(title: "App Rating"),
       body: SingleChildScrollView(
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
         child: Column(
           children: [
-            // Doctor Avatar
+            // App Logo / Avatar
             CircleAvatar(
               radius: 50,
-              backgroundImage: const NetworkImage(
-                "https://i.imgur.com/9v5z5vK.png", // Replace with actual image
-              ),
               backgroundColor: Colors.grey[200],
+              child: Icon(Icons.star, size: 50, color: Colors.orange),
             ),
 
             const SizedBox(height: 24),
 
             // Question
             const Text(
-              'How was Your experience with Dr.',
+              'How was your experience with',
               textAlign: TextAlign.center,
               style: TextStyle(
                 color: const Color(0xFF222222),
@@ -46,7 +48,7 @@ class _ReviewScreenState extends State<ReviewScreen> {
               ),
             ),
             const Text(
-              "Leena Bhusan?",
+              "Olcure App?",
               style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.w600,
@@ -84,7 +86,7 @@ class _ReviewScreenState extends State<ReviewScreen> {
               controller: _reviewController,
               maxLines: 6,
               decoration: InputDecoration(
-                hintText: "Write Your Review....",
+                hintText: "Write Your Feedback....",
                 hintStyle: const TextStyle(color: Colors.grey),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
@@ -135,7 +137,33 @@ class _ReviewScreenState extends State<ReviewScreen> {
 
                 // Submit Button
                 Expanded(
-                  child: CustomAppButton(label: "Submit", onPressed: (){})
+                  child: vm.isLoading 
+                    ? const Center(child: CircularProgressIndicator()) 
+                    : CustomAppButton(
+                        label: "Submit", 
+                        onPressed: () async {
+                          if (_reviewController.text.trim().isEmpty) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                               const SnackBar(content: Text("Please write a review."))
+                            );
+                            return;
+                          }
+                          bool success = await vm.submitAppRating(
+                            rating: _rating, 
+                            review: _reviewController.text.trim(),
+                          );
+                          if (success) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                               const SnackBar(content: Text("Feedback submitted successfully!"))
+                            );
+                            Navigator.pop(context);
+                          } else {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                               const SnackBar(content: Text("Submission failed. Please try again."))
+                            );
+                          }
+                        }
+                      ),
                 ),
               ],
             ),

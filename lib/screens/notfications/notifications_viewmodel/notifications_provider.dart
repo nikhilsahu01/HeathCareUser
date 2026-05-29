@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../model/notifications_model.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+import 'package:shared_preferences/shared_preferences.dart';
+import '../../../../core/api_service/app_url.dart';
 
 class NotificationProvider extends ChangeNotifier {
   bool loading = false;
@@ -13,33 +17,45 @@ class NotificationProvider extends ChangeNotifier {
 
   Future<void> getNotification({required BuildContext context}) async {
     setLoading(true);
-
-    await Future.delayed(const Duration(seconds: 1)); // simulate API delay
-
-    // ✅ Dummy data
-    notificationModel = NotificationModel(
-      status: true,
-      data: [
-        NotificationData(
-          id: 1,
-          title: "Appointment Confirmed",
-          message: "New video consultation booked with Priya Sharma at 11:00 AM on June 5",
-          createdAt: DateFormat('yyyy-MM-ddTHH:mm:ss').format(DateTime.now().subtract(const Duration(minutes: 10))),
-        ),
-        NotificationData(
-          id: 2,
-          title: "Medicine Reminder",
-          message: "Don’t forget to upload prescription for yesterday’s consultation with ballu Kapoor",
-          createdAt: DateFormat('yyyy-MM-ddTHH:mm:ss').format(DateTime.now().subtract(const Duration(hours: 3))),
-        ),
-        NotificationData(
-          id: 3,
-          title: "Health Tip",
-          message: "Drink at least 2 liters of water daily for good health.",
-          createdAt: DateFormat('yyyy-MM-ddTHH:mm:ss').format(DateTime.now().subtract(const Duration(days: 1))),
-        ),
-      ],
-    );
+    
+    try {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      String? token = prefs.getString('token');
+      
+      if (token != null) {
+        final response = await http.get(
+          Uri.parse(AppUrl.getNotificationsList),
+          headers: {'Authorization': 'Bearer $token'},
+        );
+        
+        if (response.statusCode == 200) {
+          final json = jsonDecode(response.body);
+          
+          List<NotificationData> listData = [];
+          if (json['data'] != null && json['data']['list'] != null) {
+            for (var item in json['data']['list']) {
+              listData.add(NotificationData(
+                id: item['_id'] ?? item['id'] ?? 0, 
+                title: item['title'] ?? 'Notification',
+                message: item['body'] ?? item['message'] ?? '',
+                createdAt: item['createdAt'] ?? DateTime.now().toIso8601String(),
+              ));
+            }
+          }
+          
+          notificationModel = NotificationModel(
+            status: json['status'] ?? true,
+            data: listData,
+          );
+        } else {
+          // If API fails, you could set an empty model or show error
+          notificationModel = NotificationModel(status: false, data: []);
+        }
+      }
+    } catch (e) {
+      debugPrint("Error fetching notifications: $e");
+      notificationModel = NotificationModel(status: false, data: []);
+    }
 
     setLoading(false);
   }

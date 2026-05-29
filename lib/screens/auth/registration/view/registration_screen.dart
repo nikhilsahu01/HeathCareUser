@@ -195,6 +195,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 import '../viewModel/register_view_model.dart';
+import '../../../../screens/profile/view/ui/cms_screen.dart';
 
 class RegistrationScreen extends StatefulWidget {
   final String mobileNumber;
@@ -214,6 +215,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
   final TextEditingController addressController = TextEditingController();
 
   final FocusNode dobFocusNode = FocusNode();
+  bool _isTermsAccepted = false;
 
   @override
   void initState() {
@@ -335,7 +337,51 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                     maxLines: 2,
                     validator: justForEmpty,
                   ),
-                  const SizedBox(height: 30),
+                  const SizedBox(height: 20),
+
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Checkbox(
+                        value: _isTermsAccepted,
+                        activeColor: ColorResource.primaryBlue,
+                        onChanged: (val) {
+                          setState(() {
+                            _isTermsAccepted = val ?? false;
+                          });
+                        },
+                      ),
+                      Expanded(
+                        child: GestureDetector(
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => const CmsScreen(type: "terms"),
+                              ),
+                            );
+                          },
+                          child: RichText(
+                            text: const TextSpan(
+                              text: "I agree to the ",
+                              style: TextStyle(color: Colors.black, fontSize: 13),
+                              children: [
+                                TextSpan(
+                                  text: "Terms & Conditions",
+                                  style: TextStyle(
+                                    color: ColorResource.primaryBlue,
+                                    fontWeight: FontWeight.bold,
+                                    decoration: TextDecoration.underline,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 20),
 
                   provider.isLoading
                       ? const CircularProgressIndicator(color: ColorResource.primaryBlue)
@@ -343,6 +389,10 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                     label: 'Register',
                     onPressed: () async {
                       if (_formKey.currentState?.validate() == true) {
+                        if (!_isTermsAccepted) {
+                          HelperMethods.showCustomSnackbar(context, message: 'Please accept Terms & Conditions', backgroundColor: ColorResource.red);
+                          return;
+                        }
                         final success = await provider.addAddress(
                           context: context,
                           name: nameController.text,

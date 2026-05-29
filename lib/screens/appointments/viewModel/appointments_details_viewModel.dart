@@ -40,4 +40,54 @@ class AppointmentDetailsViewModel extends ChangeNotifier {
     _errorMessage = null;
     _isLoading = false;
   }
+
+  Future<bool> cancelAppointment(String appointmentId, String reason) async {
+    _isLoading = true;
+    notifyListeners();
+    bool success = false;
+
+    try {
+      final response = await _repository.cancelAppointment(
+        id: appointmentId, 
+        cancelReason: reason
+      );
+      if (response == true) {
+        success = true;
+      } else {
+        _errorMessage = 'Failed to cancel appointment.';
+      }
+    } catch (e) {
+      _errorMessage = 'Error cancelling appointment: $e';
+    }
+
+    _isLoading = false;
+    notifyListeners();
+    return success;
+  }
+
+  Future<bool> rescheduleAppointment(String appointmentId, Map<String, dynamic> rescheduleData) async {
+    _isLoading = true;
+    notifyListeners();
+    bool success = false;
+
+    try {
+      final response = await _repository.rescheduleAppointment(
+        id: appointmentId,
+        newDate: rescheduleData['newDate'] ?? '',
+        newTime: rescheduleData['newTime'] ?? '',
+        rescheduleReason: rescheduleData['rescheduleReason'] ?? '',
+      );
+      if (response == true) {
+        success = true;
+      } else {
+        _errorMessage = 'Failed to reschedule appointment.';
+      }
+    } catch (e) {
+      _errorMessage = 'Error rescheduling appointment: $e';
+    }
+
+    _isLoading = false;
+    notifyListeners();
+    return success;
+  }
 }

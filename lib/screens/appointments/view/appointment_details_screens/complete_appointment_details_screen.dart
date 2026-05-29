@@ -9,8 +9,10 @@ import '../../../../core/utils/custom_widgets/custom_image_view.dart';
 import '../../../../core/utils/custom_widgets/custom_threeDots_indecator.dart';
 import '../../../../core/utils/navigation_helper.dart';
 import '../../../../core/utils/theams/color_resource.dart';
+import '../../../services/my_health_record/view/prescriptionsList.dart';
 import '../../../after_care/view/after_care_screen.dart';
 import '../../../rating_reviews/view/review_submission.dart';
+import '../../../services/my_health_record/view/my_health_records_screen.dart';
 import '../../viewModel/appointments_details_viewModel.dart';
 import '../reschedule_bottombar.dart';
 
@@ -162,7 +164,6 @@ class _CompletedAppointmentsDetailsScreenState extends State<CompletedAppointmen
                     ),
                     const SizedBox(height: 12),
 
-                    /// Aftercare Plan Button
                     CustomAppButton(
                       label: "View Aftercare plan",
                       onPressed: () {
@@ -171,6 +172,18 @@ class _CompletedAppointmentsDetailsScreenState extends State<CompletedAppointmen
                       color: Colors.white,
                       textColor: ColorResource.primaryBlue,
                       borderColor: ColorResource.primaryBlue,
+                    ),
+                    const SizedBox(height: 12),
+
+                    /// View Prescription Button
+                    CustomAppButton(
+                      label: "View Prescription",
+                      onPressed: () {
+                        navSlideFromRight(context, const PrescriptionsListScreen());
+                      },
+                      color: Colors.white,
+                      textColor: Colors.green.shade700,
+                      borderColor: Colors.green.shade700,
                     ),
                   ] else ...[
                     CustomAppButton(

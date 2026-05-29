@@ -51,6 +51,7 @@ class PatientsViewModel extends ChangeNotifier {
     required String categoryId,
     required List<String> reminders,
     required String notes,
+    String? paymentId,
   }) async {
     return await _repository.bookAppointment(
       patientId: patientId,
@@ -62,6 +63,7 @@ class PatientsViewModel extends ChangeNotifier {
       reminders: reminders,
       notes: notes,
       categoryId: categoryId,
+      paymentId: paymentId,
     );
   }
 }

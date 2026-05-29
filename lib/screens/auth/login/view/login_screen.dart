@@ -14,6 +14,7 @@ import '../repo/login_repository.dart';
 import 'package:intl_phone_field/intl_phone_field.dart';
 
 import 'package:flutter/services.dart';
+import '../../../../screens/profile/view/ui/cms_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -285,28 +286,32 @@ class _LoginScreenState extends State<LoginScreen> {
                             ),
 
                             Expanded(
-                              child: RichText(
-                                text: TextSpan(
-                                  children: [
-                                    const TextSpan(
-                                      text: "I agree to the ",
-                                      style: TextStyle(color: ColorResource.white, fontSize: 14),
+                              child: GestureDetector(
+                                onTap: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => const CmsScreen(type: "terms"),
                                     ),
-                                    TextSpan(
-                                      text: "Terms and Conditions",
-                                      style: const TextStyle(
-                                        color: ColorResource.white,
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 13,
+                                  );
+                                },
+                                child: RichText(
+                                  text: const TextSpan(
+                                    text: "I agree to the ",
+                                    style: TextStyle(color: ColorResource.white, fontSize: 14),
+                                    children: [
+                                      TextSpan(
+                                        text: "Terms and Conditions",
+                                        style: TextStyle(
+                                          color: ColorResource.white,
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 13,
+                                          decoration: TextDecoration.underline,
+                                          decorationColor: ColorResource.white,
+                                        ),
                                       ),
-                                      recognizer: TapGestureRecognizer()..onTap = () {
-                                        // navPush(context: context, action: const CmsPageScreens(
-                                        //   screenType: 'termAndConditions',
-                                        //   title: 'Terms and Conditions',
-                                        // ));
-                                      },
-                                    ),
-                                  ],
+                                    ],
+                                  ),
                                 ),
                               ),
                             ),

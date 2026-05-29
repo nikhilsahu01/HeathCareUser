@@ -9,7 +9,7 @@ class CmsRepo {
 
   Future<dynamic> getCmsData() async {
 
-    dynamic response = await _api.getApiWithToken(
+    dynamic response = await _api.getApi(
       AppUrl.cmsData,
     );
 

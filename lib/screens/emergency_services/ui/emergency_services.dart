@@ -8,6 +8,7 @@ import 'package:health_care/screens/emergency_services/widgets/confirmation_book
 import 'package:health_care/screens/emergency_services/ui/location_permission.dart';
 
 import '../ambulance_services/view/ambulance_services.dart';
+import '../widgets/radio_button_dialogue.dart';
 
 class EmergencyServicesScreen extends StatelessWidget {
   const EmergencyServicesScreen({super.key});
@@ -35,7 +36,7 @@ class EmergencyServicesScreen extends StatelessWidget {
                       label: "Ambulance Services",
                       imagePath: 'assets/icons/ambulanceIcon.png',
                       onTap: () {
-                        navSlideFromRight( context, AmbulanceServiceOptionsScreen());
+                        navSlideFromRight(context, const AmbulanceNumberScreen());
                       },
                     ),
                     _serviceButton(
@@ -55,17 +56,12 @@ class EmergencyServicesScreen extends StatelessWidget {
                       onTap: () {
                         showDialog(
                           context: context,
-                          builder: (_) => BookingConfirmationDialogue(
-                            message: "Is this Accidental Trauma?",
-                            onPressed: () {
-                               navPushReplace(context: context, page: AmbulanceNumberScreen()
-
-                              // LocationPermissionScreen(
-                              //   trauma: true,
-                              // )
-                              );
-                            },
-                          ),
+                          builder: (context) {
+                            return const BookingDialog(
+                              bookingFor: 'bookingForNow',
+                              isTrauma: true,
+                            );
+                          },
                         );
                       },
                     ),

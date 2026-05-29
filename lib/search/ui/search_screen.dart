@@ -4,6 +4,11 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../viewmodel/search_viewmodel.dart';
+import 'package:health_care/core/utils/navigation_helper.dart';
+import 'package:health_care/core/utils/global_variables.dart';
+import 'package:health_care/screens/booking/ui/consultant_profile.dart';
+import 'package:health_care/screens/booking/ui/consultant_List_screen.dart';
+import 'package:health_care/core/api_service/app_url.dart';
 
 
 class SearchScreen extends StatefulWidget {
@@ -15,10 +20,16 @@ class SearchScreen extends StatefulWidget {
 
 class _SearchScreenState extends State<SearchScreen> {
 
-  final TextEditingController searchController =
-  TextEditingController();
+  final TextEditingController searchController = TextEditingController();
+  late final SearchViewModel _searchViewModel;
 
   Timer? _debouncer;
+
+  @override
+  void initState() {
+    super.initState();
+    _searchViewModel = SearchViewModel();
+  }
 
   @override
   void dispose() {
@@ -26,6 +37,7 @@ class _SearchScreenState extends State<SearchScreen> {
     searchController.dispose();
 
     _debouncer?.cancel();
+    _searchViewModel.dispose();
 
     super.dispose();
   }
@@ -46,7 +58,7 @@ class _SearchScreenState extends State<SearchScreen> {
       const Duration(milliseconds: 700),
           () {
 
-        context.read<SearchViewModel>().search(value);
+        _searchViewModel.search(value);
 
       },
     );
@@ -55,9 +67,9 @@ class _SearchScreenState extends State<SearchScreen> {
   @override
   Widget build(BuildContext context) {
 
-    return ChangeNotifierProvider(
+    return ChangeNotifierProvider.value(
 
-      create: (_) => SearchViewModel(),
+      value: _searchViewModel,
 
       child: Scaffold(
 
@@ -89,9 +101,7 @@ class _SearchScreenState extends State<SearchScreen> {
 
                       searchController.clear();
 
-                      context
-                          .read<SearchViewModel>()
-                          .search('');
+                      _searchViewModel.search('');
 
                       setState(() {});
                     },
@@ -169,34 +179,25 @@ class _SearchScreenState extends State<SearchScreen> {
                 provider.searchResults[index];
 
                 return InkWell(
-
                   borderRadius: BorderRadius.circular(16),
-
                   onTap: () {
-
-                    /// Navigate to details screen
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text(
-                          "Clicked on ${item.title}",
-                        ),
-                      ),
-                    );
+                    if (item.type == 'doctor') {
+                      navSlideFromRight(context, ConsultantDetailsScreen(consultantId: item.id));
+                    } else if (item.type == 'category' || item.type == 'symptom') {
+                      globalSpecializationCategoryId = item.id;
+                      navSlideFromRight(context, const ConsultantListScreen());
+                    } else {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text("Clicked on ${item.title}")),
+                      );
+                    }
                   },
-
                   child: Container(
-
                     padding: const EdgeInsets.all(14),
-
                     decoration: BoxDecoration(
-
                       color: Colors.white,
-
-                      borderRadius:
-                      BorderRadius.circular(16),
-
+                      borderRadius: BorderRadius.circular(16),
                       boxShadow: [
-
                         BoxShadow(
                           color: Colors.black.withOpacity(0.05),
                           blurRadius: 10,
@@ -204,54 +205,46 @@ class _SearchScreenState extends State<SearchScreen> {
                         ),
                       ],
                     ),
-
                     child: Row(
-
                       children: [
-
                         CircleAvatar(
                           radius: 26,
-                          backgroundColor:
-                          Colors.blue.shade50,
-                          child: Icon(
-                            item.icon,
-                            color: Colors.blue,
-                          ),
+                          backgroundColor: Colors.blue.shade50,
+                          backgroundImage: item.image.isNotEmpty
+                              ? NetworkImage('${AppUrl.baseUrl}/${item.image}')
+                              : null,
+                          child: item.image.isEmpty
+                              ? Icon(
+                                  item.type == 'doctor' ? Icons.person : Icons.local_hospital,
+                                  color: Colors.blue,
+                                )
+                              : null,
                         ),
-
                         const SizedBox(width: 14),
-
                         Expanded(
-
                           child: Column(
-
-                            crossAxisAlignment:
-                            CrossAxisAlignment.start,
-
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-
                               Text(
                                 item.title,
                                 style: const TextStyle(
                                   fontSize: 16,
-                                  fontWeight:
-                                  FontWeight.w600,
+                                  fontWeight: FontWeight.w600,
                                 ),
                               ),
-
                               const SizedBox(height: 4),
-
                               Text(
                                 item.subtitle,
                                 style: TextStyle(
                                   fontSize: 14,
                                   color: Colors.grey.shade600,
                                 ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
                               ),
                             ],
                           ),
                         ),
-
                         const Icon(
                           Icons.arrow_forward_ios_rounded,
                           size: 18,

@@ -4,8 +4,11 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
-
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import '../../main.dart';
+import '../../screens/services/my_health_record/view/my_health_records_screen.dart';
 class FirebaseNotificationService {
   final FirebaseMessaging _firebaseMessaging = FirebaseMessaging.instance;
   bool _isInitialized = false;
@@ -59,8 +62,11 @@ class FirebaseNotificationService {
 
       // 🟡 Background / Terminated → App Opened
       FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
-        print("📲 App opened via notification");
-
+        print("📲 App opened via notification: ${message.data}");
+        
+        // Convert Map<String, dynamic> to Map<String, String?>
+        final convertedData = message.data.map((key, value) => MapEntry(key, value?.toString()));
+        handleNotificationNavigation(convertedData, context);
       });
       AwesomeNotifications().setListeners(
         onActionReceivedMethod: (ReceivedAction action) async {
@@ -74,8 +80,24 @@ class FirebaseNotificationService {
     }
   }
   Future<void> handleNotificationAction(ReceivedAction action, BuildContext context) async {
-    if (action.payload?['screen'] == 'home') {
+    if (action.payload != null) {
+      handleNotificationNavigation(action.payload!, context);
+    }
+  }
 
+  void handleNotificationNavigation(Map<String, String?> data, BuildContext context) {
+    if (data['screen'] == 'prescription') {
+      // Navigate to My Health Records
+      // We assume there's a GlobalKey<NavigatorState> in main.dart
+      // E.g. MyApp.navigatorKey.currentState?.push(...)
+      try {
+        final context = MyApp.navigatorKey.currentContext;
+        if (context != null) {
+           Navigator.push(context, MaterialPageRoute(builder: (_) => const MyHealthAndRecords()));
+        }
+      } catch (e) {
+        print("Navigation Error: $e");
+      }
     }
   }
 

@@ -8,7 +8,9 @@ import '../../../core/utils/navigation_helper.dart';
 import '../../../core/utils/theams/color_resource.dart';
 import '../../home/view/bottom_controller.dart';
 import '../view_model/patients_viewmodel.dart';
+import '../repo/booking_repository.dart';
 import '../../../core/utils/custom_widgets/booking_completeDialogue.dart';
+import 'package:razorpay_flutter/razorpay_flutter.dart';
 
 
 class AddPatientsDialogue extends StatefulWidget {
@@ -42,12 +44,134 @@ class _AddPatientsDialogueState extends State<AddPatientsDialogue> {
   final TextEditingController newPatientController = TextEditingController();
   bool showAddField = false;
   bool isSaving = false;
+  late Razorpay _razorpay;
+
   @override
   void initState() {
     super.initState();
+    _razorpay = Razorpay();
+    _razorpay.on(Razorpay.EVENT_PAYMENT_SUCCESS, _handlePaymentSuccess);
+    _razorpay.on(Razorpay.EVENT_PAYMENT_ERROR, _handlePaymentError);
+    _razorpay.on(Razorpay.EVENT_EXTERNAL_WALLET, _handleExternalWallet);
+
     Future.delayed(Duration.zero, () {
       Provider.of<PatientsViewModel>(context, listen: false).fetchPatients();
     });
+  }
+
+  @override
+  void dispose() {
+    _razorpay.clear();
+    super.dispose();
+  }
+
+  void _handlePaymentSuccess(PaymentSuccessResponse response) async {
+    try {
+      final repository = BookingRepository();
+      final success = await repository.confirmPayment(
+        paymentId: _currentPaymentId!,
+        transactionId: response.paymentId!,
+      );
+
+      if (success) {
+        _proceedWithBooking(_currentPaymentId!);
+      } else {
+        setState(() => isSaving = false);
+        HelperMethods.showCustomSnackbar(context, message: 'Payment confirmation failed.');
+      }
+    } catch (e) {
+      setState(() => isSaving = false);
+      HelperMethods.showCustomSnackbar(context, message: 'Payment confirmation error: $e');
+    }
+  }
+
+  void _handlePaymentError(PaymentFailureResponse response) {
+    setState(() => isSaving = false);
+    HelperMethods.showCustomSnackbar(context, message: 'Payment Failed: ${response.message}');
+  }
+
+  void _handleExternalWallet(ExternalWalletResponse response) {
+    setState(() => isSaving = false);
+    HelperMethods.showCustomSnackbar(context, message: 'External Wallet Selected: ${response.walletName}');
+  }
+
+  String? _currentPaymentId;
+
+  Future<void> _initiateAndPay() async {
+    try {
+      final repository = BookingRepository();
+      final response = await repository.initiatePayment(
+        vendorId: widget.consultantId,
+        type: globalTabType,
+        patientId: selectedPatientId,
+      );
+
+      if (response['success'] == true) {
+        final data = response['data'];
+        final bool paymentRequired = data['paymentRequired'] ?? false;
+        final summary = data['summary'];
+        final payment = data['payment'];
+        _currentPaymentId = payment['_id'];
+
+        if (paymentRequired) {
+          var options = {
+            'key': 'rzp_test_hCRLFPf6rY3elm',
+            'amount': (summary['totalAmount'] * 100).round(),
+            'name': 'Healthcare Consultation',
+            'description': 'Consultation with Doctor',
+            'order_id': data['razorpayOrderId'],
+            'prefill': {
+              'contact': '9876543210',
+              'email': 'test@razorpay.com'
+            }
+          };
+          _razorpay.open(options);
+        } else {
+          _proceedWithBooking(_currentPaymentId!);
+        }
+      } else {
+        setState(() => isSaving = false);
+        HelperMethods.showCustomSnackbar(context, message: 'Failed to initiate payment.');
+      }
+    } catch (e) {
+      setState(() => isSaving = false);
+      HelperMethods.showCustomSnackbar(context, message: 'Payment initiation error: $e');
+    }
+  }
+
+  Future<void> _proceedWithBooking(String paymentId) async {
+    String commaSeparated = globalSymptomName.join(', ');
+    final success = await Provider.of<PatientsViewModel>(context, listen: false).bookAppointment(
+      patientId: selectedPatientId!,
+      vendorId: widget.consultantId,
+      appointmentDate: widget.selectedDate,
+      timeSlot: widget.selectedSlotTime,
+      reminders: widget.reminderList,
+      type: globalTabType,
+      categoryId: globalSpecializationCategoryId,
+      notes: widget.notes ?? commaSeparated,
+      isEmergency: widget.isEmergency,
+      paymentId: paymentId,
+    );
+
+    if (success) {
+      globalSymptomName.clear();
+      globalSymptomId.clear();
+      setState(() => isSaving = false);
+      if (context.mounted) navPop(context: context);
+      if (context.mounted) {
+        showDialog(
+          context: context,
+          builder: (_) => BookingCompletionDialogue(
+            message: widget.message,
+            buttonText: 'Back to home',
+          ),
+        );
+      }
+    } else {
+      setState(() => isSaving = false);
+      HelperMethods.showCustomSnackbar(context, message: "Booking failed, please try again.");
+    }
   }
 
   void addNewPatient(PatientsViewModel provider) async {
@@ -192,43 +316,8 @@ class _AddPatientsDialogueState extends State<AddPatientsDialogue> {
                       debugPrint('Selected Date: ${widget.selectedDate}');
                       debugPrint('Selected Slot: ${widget.selectedSlotTime}');
                       debugPrint('Selected Patient ID: $selectedPatientId');
-                      String commaSeparated = globalSymptomName.join(', ');
 
-                      // Book appointment and wait for result
-                      final success = await Provider.of<PatientsViewModel>(context, listen: false).bookAppointment(
-                        patientId: selectedPatientId!,
-                        vendorId: widget.consultantId,
-                        appointmentDate: widget.selectedDate,
-                        timeSlot: widget.selectedSlotTime,
-                        reminders: widget.reminderList,
-                        type:globalTabType,
-                        categoryId:globalSpecializationCategoryId,
-                        notes:widget.notes?? commaSeparated,
-                          isEmergency:widget.isEmergency
-
-                      );
-
-                      if (success) {
-                        globalSymptomName.clear();
-                        globalSymptomId.clear();
-                        setState(() => isSaving= false);
-                        // Close current AddPatientsDialogue
-                        if (context.mounted) navPop(context: context);
-
-                        // Show booking completion dialogue
-                        if (context.mounted) {
-                          showDialog(
-                            context: context,
-                            builder: (_) => BookingCompletionDialogue(
-                              message: widget.message,
-                              buttonText: 'Back to home',
-                            ),
-                          );
-                        }
-                      } else {
-                        setState(() => isSaving= false);
-                        HelperMethods.showCustomSnackbar(context, message: "Booking failed, please try again.");
-                      }
+                      _initiateAndPay();
                     },
                     child: isSaving
                           ?  const ThreeDotsLoader(color: ColorResource.white,)

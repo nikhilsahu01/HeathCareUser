@@ -49,7 +49,7 @@ class _CmsScreenState extends State<CmsScreen> {
 
         title = "About Us";
 
-        content = cmsData.termCondition ?? "";
+        content = cmsData.aboutUs ?? "";
 
       }
       else if (widget.type == "privacy") {
@@ -62,7 +62,7 @@ class _CmsScreenState extends State<CmsScreen> {
 
         title = "Terms & Conditions";
 
-        content = cmsData.aboutUs ?? "";
+        content = cmsData.termCondition ?? "";
       }
     }
 

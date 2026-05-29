@@ -6,7 +6,7 @@ class NotificationModel {
 }
 
 class NotificationData {
-  final int? id;
+  final dynamic id;
   final String? title;
   final String? message;
   final String? createdAt;

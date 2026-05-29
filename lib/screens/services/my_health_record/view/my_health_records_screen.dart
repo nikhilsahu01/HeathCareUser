@@ -20,14 +20,15 @@ class MyHealthAndRecords extends StatelessWidget {
     return Scaffold(
       backgroundColor: ColorResource.white,
       appBar: CustomAppBar(title: 'My Health & Record'),
-      body: SingleChildScrollView(
-        padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.05),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            SizedBox(height: screenHeight * 0.15,),
-            Row(
-              children: [
+      body: SafeArea(
+        child: SingleChildScrollView(
+          padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.05),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              SizedBox(height: screenHeight * 0.05,),
+              Row(
+                children: [
                 Expanded(
                   child: CustomImageView(
                     imagePath: 'assets/images/healthCareRecButton.png',
@@ -50,8 +51,9 @@ class MyHealthAndRecords extends StatelessWidget {
                 ),
               ],
             ),
-         ],
-       )
+          ],
+        ),
+      ),
       ),
     );
   }

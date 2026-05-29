@@ -118,51 +118,51 @@ class ConsultantDetailsData {
   });
 
   ConsultantDetailsData.fromJson(Map<String, dynamic> json) {
-    sId = json['_id'];
-    category = json['category'];
-    type = json['type'];
-    name = json['Name'];
-    mobile = json['mobile'];
-    dob = json['dob'];
-    gender = json['gender'];
-    address = json['address'];
-    department = List<String>.from(json['department']);
-    symptoms = List<String>.from(json['symptoms']); // Corrected to List<String>
-    qualification = json['qualification'];
-    yearOfExp = json['yearOfExp'];
-    licOrRegNumber = json['licOrRegNumber'];
-    certificate = json['certificate'];
-    state = json['state'];
-    district = json['district'];
-    pincode = json['pincode'];
-    lat = json['lat'];
-    long = json['long'];
-    startTime = json['startTime'];
-    endTime = json['endTime'];
-    rating = json['rating'];
-    commission = json['commission'];
-    walletBalance = json['wallet_balance'];
-    isBlocked = json['isBlocked'];
-    agreementAccepted = json['agreementAccepted'];
-    status = json['success'];
-    otpExpires = json['otpExpires'];
-    createdAt = json['createdAt'];
-    iV = json['__v'];
-    isEmergency = json['isEmergency'];
-    inClinicAvailable = json['inClinicAvaialble']; // Corrected spelling
-    videoConsultAvailable = json['videoConsultAvailable'];
-    inClinicFee = json['inClinicFee'];
-    profileImage = json['profileImage'];
-    videoConsultFee = json['videoConsultFee'];
-    closingTime = json['closingTime'];
-    openingTime = json['openingTime'];
-    selectDays = List<String>.from(json['selectDays']); // Corrected to List<String>
-    breakTime = json['breakTime'];
-    lunchEnd = json['lunchEnd'];
-    lunchStart = json['lunchStart'];
-    sessionTime = json['sessionTime'];
-    totalPatient = json['totalPatient'];
-    review = json['review'];
+    sId = json['_id']?.toString();
+    category = json['category']?.toString();
+    type = json['type']?.toString();
+    name = json['Name']?.toString();
+    mobile = json['mobile']?.toString();
+    dob = json['dob']?.toString();
+    gender = json['gender']?.toString();
+    address = json['address']?.toString();
+    department = json['department'] != null ? List<String>.from(json['department'].map((x) => x.toString())) : [];
+    symptoms = json['symptoms'] != null ? List<String>.from(json['symptoms'].map((x) => x.toString())) : [];
+    qualification = json['qualification']?.toString();
+    yearOfExp = json['yearOfExp']?.toString();
+    licOrRegNumber = json['licOrRegNumber']?.toString();
+    certificate = json['certificate']?.toString();
+    state = json['state']?.toString();
+    district = json['district']?.toString();
+    pincode = json['pincode']?.toString();
+    lat = json['lat']?.toString();
+    long = json['long']?.toString();
+    startTime = json['startTime']?.toString();
+    endTime = json['endTime']?.toString();
+    rating = json['rating']?.toString();
+    commission = json['commission'] is int ? json['commission'] : int.tryParse(json['commission']?.toString() ?? '');
+    walletBalance = json['wallet_balance'] is int ? json['wallet_balance'] : int.tryParse(json['wallet_balance']?.toString() ?? '');
+    isBlocked = json['isBlocked'] == true;
+    agreementAccepted = json['agreementAccepted']?.toString();
+    status = json['success'] == true;
+    otpExpires = json['otpExpires']?.toString();
+    createdAt = json['createdAt']?.toString();
+    iV = json['__v'] is int ? json['__v'] : int.tryParse(json['__v']?.toString() ?? '');
+    isEmergency = json['isEmergency'] == true;
+    inClinicAvailable = json['inClinicAvaialble'] == true;
+    videoConsultAvailable = json['videoConsultAvailable'] == true;
+    inClinicFee = json['inClinicFee']?.toString();
+    profileImage = json['profileImage']?.toString();
+    videoConsultFee = json['videoConsultFee']?.toString();
+    closingTime = json['closingTime']?.toString();
+    openingTime = json['openingTime']?.toString();
+    selectDays = json['selectDays'] != null ? List<String>.from(json['selectDays'].map((x) => x.toString())) : [];
+    breakTime = json['breakTime'] is int ? json['breakTime'] : int.tryParse(json['breakTime']?.toString() ?? '');
+    lunchEnd = json['lunchEnd']?.toString();
+    lunchStart = json['lunchStart']?.toString();
+    sessionTime = json['sessionTime'] is int ? json['sessionTime'] : int.tryParse(json['sessionTime']?.toString() ?? '');
+    totalPatient = json['totalPatient']?.toString();
+    review = json['review']?.toString();
   }
 
   Map<String, dynamic> toJson() {
